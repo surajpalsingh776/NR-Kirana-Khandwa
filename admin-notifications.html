@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Notifications | NR Kirana Khandwa Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#163b35,#07110f 55%,#030706);color:#eefcf7;min-height:100vh}button,a,input,select{font:inherit}.wrap{max-width:1100px;margin:auto;padding:20px}.glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 45px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.08);backdrop-filter:blur(18px);border-radius:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px;margin-bottom:18px}.brand{font-size:22px;font-weight:900}.muted{color:#9bb5ad;font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:14px;padding:11px 15px;cursor:pointer;color:#fff;background:rgba(255,255,255,.1);text-decoration:none;font-weight:800}.btn.primary{background:linear-gradient(135deg,#19b879,#087b59)}.btn.danger{background:linear-gradient(135deg,#e85b5b,#9d2020)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.stat{padding:20px}.stat b{display:block;font-size:28px;margin-top:6px}.toolbar{padding:15px;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.toolbar input,.toolbar select{flex:1;min-width:180px;background:rgba(0,0,0,.25);color:#fff;border:1px solid rgba(255,255,255,.13);padding:12px;border-radius:14px;outline:none}.toolbar option{background:#10201c}.list{display:grid;gap:12px}.note{padding:18px;display:flex;gap:14px;align-items:flex-start}.icon{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:rgba(27,190,132,.15);font-size:24px;flex:none}.content{flex:1}.row{display:flex;justify-content:space-between;gap:10px}.title{font-weight:900;font-size:16px}.message{margin:7px 0;color:#c3d6d0;line-height:1.45}.time{font-size:12px;color:#819991}.badge{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;background:#18a976}.read .badge{background:rgba(255,255,255,.12);color:#aabdb7}.note.unread{border-color:rgba(26,211,146,.45)}.noteBtns{display:flex;gap:7px;flex-wrap:wrap}.empty{text-align:center;padding:45px;color:#9bb5ad}.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;place-items:center;padding:20px}.modal.show{display:grid}.modalBox{max-width:430px;width:100%;padding:24px}.spinner{padding:30px;text-align:center;color:#a9c1ba}@media(max-width:700px){.stats{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.row{flex-direction:column}}
+</style></head>
+<body><div class="wrap">
+<header class="glass top"><div><div class="brand">🔔 NR Kirana Khandwa</div><div class="muted">Admin Notifications • Real-time</div></div><div class="actions"><a class="btn" href="admin.html">🏠 Dashboard</a><button class="btn danger" id="logout">🚪 Logout</button></div></header>
+<section class="stats"><div class="glass stat"><div class="muted">Total Notifications</div><b id="total">0</b></div><div class="glass stat"><div class="muted">Unread</div><b id="unread">0</b></div><div class="glass stat"><div class="muted">Order Notifications</div><b id="ordersCount">0</b></div></section>
+<section class="glass toolbar"><input id="search" placeholder="🔎 Notification खोजें..."><select id="filter"><option value="all">All</option><option value="unread">Unread</option><option value="order">Orders</option><option value="delivery">Delivery</option><option value="status">Status</option></select><button class="btn primary" id="markAll">✓ Mark All Read</button><button class="btn danger" id="clearAll">🗑 Clear All</button></section>
+<main id="list" class="list"><div class="glass spinner">Notifications लोड हो रही हैं...</div></main>
+</div>
+<div class="modal" id="modal"><div class="glass modalBox"><h3>⚠️ Clear all notifications?</h3><p class="muted">सभी admin notifications permanently delete हो जाएँगी।</p><div class="actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" id="confirmClear">Clear All</button></div></div></div>
+<script>
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let notes=[];
+const $=id=>document.getElementById(id);
+function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function icon(n){if(n.type==='order')return '🛒';if(n.type==='delivery')return '🚴';if(n.type==='danger')return '❌';if(n.type==='status')return '📦';if(n.type==='warning')return '⚠️';return '🔔'}
+function time(v){return new Date(v).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
+function render(){let q=$('search').value.toLowerCase().trim(),f=$('filter').value;let arr=notes.filter(n=>{let ok=!q||(n.title+' '+n.message).toLowerCase().includes(q);if(f==='unread')ok&&=!n.is_read;if(['order','delivery','status'].includes(f))ok&&=n.type===f;return ok});$('total').textContent=notes.length;$('unread').textContent=notes.filter(n=>!n.is_read).length;$('ordersCount').textContent=notes.filter(n=>n.type==='order').length;if(!arr.length){$('list').innerHTML='<div class="glass empty">🔕 कोई notification नहीं मिली।</div>';return}$('list').innerHTML=arr.map(n=>`<article class="glass note ${n.is_read?'read':'unread'}"><div class="icon">${icon(n)}</div><div class="content"><div class="row"><div class="title">${esc(n.title)}</div><span class="badge">${n.is_read?'READ':'NEW'}</span></div><div class="message">${esc(n.message)}</div><div class="row"><span class="time">${time(n.created_at)}</span><div class="noteBtns">${!n.is_read?`<button class="btn" onclick="markRead('${n.id}')">✓ Read</button>`:''}${n.order_id?`<a class="btn primary" href="admin-orders.html?order=${encodeURIComponent(n.order_id)}">Open Order</a>`:''}</div></div></div></article>`).join('')}
+async function auth(){const {data:{session}}=await db.auth.getSession();if(!session){location.href='admin-login.html';return false}const {data,error}=await db.from('admin_users').select('id,is_active').eq('id',session.user.id).maybeSingle();if(error||!data?.is_active){await db.auth.signOut();location.href='admin-login.html';return false}return true}
+async function load(){const {data,error}=await db.from('notifications').select('*').order('created_at',{ascending:false}).limit(500);if(error){$('list').innerHTML='<div class="glass empty">❌ Notifications load नहीं हुईं: '+esc(error.message)+'</div>';return}notes=data||[];render()}
+async function markRead(id){const {error}=await db.from('notifications').update({is_read:true}).eq('id',id);if(!error){let n=notes.find(x=>x.id===id);if(n)n.is_read=true;render()}}
+$('markAll').onclick=async()=>{if(!notes.some(n=>!n.is_read))return;const {error}=await db.from('notifications').update({is_read:true}).eq('is_read',false);if(!error){notes.forEach(n=>n.is_read=true);render()}};
+$('clearAll').onclick=()=>$('modal').classList.add('show');window.closeModal=()=>$('modal').classList.remove('show');$('confirmClear').onclick=async()=>{const {error}=await db.from('notifications').delete().not('id','is',null);if(!error){notes=[];render();closeModal()}};
+$('search').oninput=render;$('filter').onchange=render;
+$('logout').onclick=async()=>{await db.auth.signOut();localStorage.removeItem('nrAdminLoggedIn');localStorage.removeItem('nrAdminEmail');location.href='admin-login.html'};
+async function browserNotify(n){if(!('Notification'in window)||Notification.permission!=='granted')return;new Notification(n.title,{body:n.message})}
+(async()=>{if(!(await auth()))return;await load();if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();db.channel('nr-admin-notifications-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},p=>{notes.unshift(p.new);render();browserNotify(p.new)}).on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications'},p=>{let i=notes.findIndex(n=>n.id===p.new.id);if(i>=0)notes[i]=p.new;else notes.unshift(p.new);render()}).on('postgres_changes',{event:'DELETE',schema:'public',table:'notifications'},p=>{notes=notes.filter(n=>n.id!==p.old.id);render()}).subscribe();})();
+</script>
+<!-- NR Kirana Khandwa: custom new-notification sound -->
+<audio id="newOrderSound" preload="auto">
+  <source src="nr-notification-sound.wav" type="audio/wav">
+</audio>
+<script>
+  const newOrderSound = document.getElementById('newOrderSound');
+
+  // Call this after a new notification/order arrives.
+  async function playNewNotificationSound() {
+    try {
+      newOrderSound.currentTime = 0;
+      await newOrderSound.play();
+    } catch (err) {
+      // Browser may block autoplay until the admin has interacted with the page.
+      console.log('Notification sound blocked by browser:', err);
+    }
+  }
+</script>
+
+</body></html>

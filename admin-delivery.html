@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#07111f">
+<title>Delivery Management | NR Kirana Khandwa Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{min-height:100vh;color:#eef6ff;background:radial-gradient(circle at 10% 10%,rgba(0,196,255,.15),transparent 30%),radial-gradient(circle at 90% 90%,rgba(124,58,237,.18),transparent 32%),#050b14}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#050b14}.loaderbox{text-align:center;color:#9fb1c8}.spin{width:46px;height:46px;border:4px solid #243244;border-top-color:#52bfff;border-radius:50%;animation:s .8s linear infinite;margin:auto auto 12px}@keyframes s{to{transform:rotate(360deg)}}
+.header{position:sticky;top:0;z-index:100;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,11,20,.86);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 35px rgba(0,0,0,.28)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:25px;background:linear-gradient(145deg,#1c2c42,#07101d);box-shadow:7px 7px 18px #02050a,inset 1px 1px 2px rgba(255,255,255,.12)}.brand h1{font-size:18px}.brand p{font-size:11px;color:#71849c;margin-top:3px}
+.headright{display:flex;align-items:center;gap:10px}.pill{padding:9px 12px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.045);color:#a9bad0;font-size:12px}.logout{border:1px solid rgba(248,113,113,.2);background:rgba(127,29,29,.25);color:#fecaca;padding:10px 13px;border-radius:13px;font-weight:800}
+.wrap{max-width:1450px;margin:auto;padding:24px}.title{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.title h2{font-size:28px}.title p{color:#8ea0b7;font-size:13px;margin-top:5px}.refresh{border:0;border-radius:15px;padding:11px 15px;color:white;background:linear-gradient(145deg,#1685ff,#0751c9);box-shadow:5px 5px 14px rgba(0,0,0,.35),inset 1px 1px 2px rgba(255,255,255,.25);font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}.stat{padding:19px;border-radius:22px;background:rgba(14,25,40,.76);border:1px solid rgba(255,255,255,.08);box-shadow:10px 10px 28px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05)}.stat .ico{font-size:23px;margin-bottom:10px}.stat small{color:#7f91a9}.stat strong{display:block;font-size:25px;margin-top:5px}
+.tools{display:grid;grid-template-columns:1.5fr .8fr .8fr auto;gap:10px;margin-bottom:18px}.input,.select{width:100%;border:1px solid rgba(255,255,255,.09);outline:none;border-radius:15px;padding:12px 14px;color:#eaf3ff;background:rgba(12,22,36,.88);box-shadow:inset 2px 2px 7px rgba(0,0,0,.3)}.input::placeholder{color:#657992}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{padding:19px;border-radius:24px;background:rgba(14,25,40,.75);border:1px solid rgba(255,255,255,.08);box-shadow:11px 11px 30px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05)}.cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.cardhead h3{font-size:17px}.count{color:#7890ab;font-size:11px}
+.order{padding:14px;border-radius:18px;margin-bottom:10px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.07)}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.oid{font-weight:900}.status{font-size:10px;padding:6px 9px;border-radius:999px;background:rgba(59,130,246,.14);color:#93c5fd}.muted{color:#8b9db3;font-size:11px}.ordergrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.assign{margin-top:12px;width:100%;padding:10px;border-radius:12px;border:1px solid rgba(82,191,255,.22);background:rgba(0,150,255,.09);color:#8ed7ff;font-weight:800}
+.partner{padding:15px;border-radius:18px;margin-bottom:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035)}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;background:#64748b}.dot.on{background:#34d399;box-shadow:0 0 10px #34d399}.partner-actions{display:flex;gap:7px;margin-top:11px}.mini{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#d8e6f5;border-radius:10px;padding:8px 10px;font-size:11px}
+.empty{text-align:center;padding:35px;color:#63758b;font-size:13px}
+.modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px)}.modal.show{display:flex}.modalbox{width:min(560px,100%);max-height:90vh;overflow:auto;padding:22px;border-radius:25px;background:#0b1726;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px rgba(0,0,0,.6)}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.close{border:0;background:rgba(255,255,255,.07);color:white;border-radius:10px;padding:7px 10px}.field{margin-bottom:12px}.field label{display:block;color:#8ea0b7;font-size:11px;margin-bottom:6px}.fullbtn{width:100%;border:0;border-radius:14px;padding:12px;background:linear-gradient(145deg,#18a0ff,#0755c8);color:white;font-weight:900}
+.toast{position:fixed;z-index:1000;left:50%;bottom:24px;transform:translate(-50%,25px);opacity:0;pointer-events:none;padding:12px 17px;border-radius:14px;background:#101d2d;border:1px solid rgba(255,255,255,.1);box-shadow:0 15px 40px #000;color:white;font-size:12px;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.tools{grid-template-columns:1fr 1fr}.title{align-items:flex-start}.headright .pill{display:none}}
+@media(max-width:600px){.wrap{padding:16px 12px}.header{padding:11px 13px}.brand h1{font-size:15px}.logo{width:42px;height:42px}.title h2{font-size:22px}.stats{gap:9px}.stat{padding:14px}.stat strong{font-size:21px}.tools{grid-template-columns:1fr}.ordergrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="loader" id="loader"><div class="loaderbox"><div class="spin"></div>Admin security check...</div></div>
+
+<header class="header">
+ <div class="brand"><div class="logo">🚴</div><div><h1>NR Kirana Khandwa</h1><p>Delivery Management</p></div></div>
+ <div class="headright"><div class="pill" id="adminEmail"></div><button class="logout" id="logout">🚪 Logout</button></div>
+</header>
+
+<div style="max-width:1450px;margin:0 auto;padding:14px 24px 0;">
+  <a href="admin.html" class="mini" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:800;">
+    🏠 Dashboard पर वापस जाएँ
+  </a>
+</div>
+
+<main class="wrap">
+ <div class="title"><div><h2>Delivery Management 🚴</h2><p>Delivery partners और orders को एक जगह से manage करें</p></div><button class="refresh" onclick="loadAll()">↻ Refresh</button></div>
+
+ <section class="stats">
+  <div class="stat"><div class="ico">👤</div><small>Total Partners</small><strong id="totalPartners">0</strong></div>
+  <div class="stat"><div class="ico">🟢</div><small>Online</small><strong id="onlinePartners">0</strong></div>
+  <div class="stat"><div class="ico">📦</div><small>Active Deliveries</small><strong id="activeDeliveries">0</strong></div>
+  <div class="stat"><div class="ico">✅</div><small>Delivered Today</small><strong id="deliveredToday">0</strong></div>
+ </section>
+
+ <section class="tools">
+  <input class="input" id="search" placeholder="🔎 Order / customer / mobile / partner search..." oninput="render()">
+  <select class="select" id="orderFilter" onchange="render()"><option value="active">Active Orders</option><option value="all">All Orders</option><option value="unassigned">Unassigned</option></select>
+  <select class="select" id="partnerFilter" onchange="render()">
+  <option value="all">Active Partners</option>
+  <option value="online">Online Only</option>
+  <option value="available">Available</option>
+  <option value="inactive">Inactive Partners</option>
+  <option value="all-records">All Records</option>
+</select>
+  <button class="refresh" onclick="openAddPartner()">＋ Partner</button>
+ </section>
+
+ <section class="grid">
+  <div class="card">
+   <div class="cardhead"><h3>📦 Delivery Orders</h3><span class="count" id="orderCount">0</span></div>
+   <div id="orders"><div class="empty">Orders loading...</div></div>
+  </div>
+  <div class="card">
+   <div class="cardhead"><h3>🚴 Delivery Partners</h3><span class="count" id="partnerCount">0</span></div>
+   <div id="partners"><div class="empty">Partners loading...</div></div>
+  </div>
+ </section>
+</main>
+
+<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h3 id="modalTitle">Assign Delivery</h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const db=window.nrSupabase;
+let orders=[],partners=[],verified=false,modalOrderId=null;
+
+function toast(x){const t=document.getElementById('toast');t.textContent=x;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(()=>t.classList.remove('show'),2600)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function closeModal(){document.getElementById('modal').classList.remove('show');modalOrderId=null}
+
+async function checkAdmin(){
+ if(!db){location.replace('admin-login.html');return false}
+ const {data,error}=await db.auth.getSession();
+ if(error||!data?.session){location.replace('admin-login.html');return false}
+ const {data:admin,error:ae}=await db.from('admin_users').select('id,email,is_active').eq('id',data.session.user.id).maybeSingle();
+ if(ae){console.error(ae);toast('Admin verification error');return false}
+ if(!admin||admin.is_active!==true){await db.auth.signOut();location.replace('admin-login.html');return false}
+ document.getElementById('adminEmail').textContent=admin.email;
+ verified=true;document.getElementById('loader').style.display='none';return true;
+}
+
+async function loadAll(){
+ if(!verified && !(await checkAdmin())) return;
+ await Promise.all([loadOrders(),loadPartners()]);
+ updateStats();render();
+}
+async function loadOrders(){
+ const {data,error}=await db.from('orders').select('*').order('created_at',{ascending:false}).limit(300);
+ if(error){console.error('orders',error);orders=[];toast('Orders load नहीं हुए');return}
+ orders=data||[];
+}
+async function loadPartners(){
+ const {data,error}=await db.from('delivery_partners').select('*').order('is_online',{ascending:false}).order('name');
+ if(error){console.error('partners',error);partners=[];toast('Delivery partners load नहीं हुए');return}
+ partners=data||[];
+}
+function active(o){return !['Delivered','Cancelled'].includes(o.status)}
+function mobile(o){return o.customer_mobile || o.address?.mobile || ''}
+function addr(o){const a=o.address||{};return [a.houseShop,a.area,a.city,a.pincode].filter(Boolean).join(', ') || a.fullAddress || 'Address not available'}
+function updateStats(){
+ document.getElementById('totalPartners').textContent=partners.length;
+ document.getElementById('onlinePartners').textContent=partners.filter(p=>p.is_online&&p.is_active).length;
+ document.getElementById('activeDeliveries').textContent=orders.filter(o=>active(o)&&o.delivery_partner_id).length;
+ const today=new Date().toDateString();
+ document.getElementById('deliveredToday').textContent=partners.reduce((n,p)=>n+(Number(p.delivered_today)||0),0);
+}
+function render(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const of=document.getElementById('orderFilter').value,pf=document.getElementById('partnerFilter').value;
+ let os=orders.filter(o=>of==='active'?active(o):true).filter(o=>of==='unassigned'?!o.delivery_partner_id:true);
+ if(q)os=os.filter(o=>(o.order_number+' '+o.customer_name+' '+mobile(o)+' '+(o.delivery_partner_id||'')).toLowerCase().includes(q));
+ document.getElementById('orderCount').textContent=os.length;
+ document.getElementById('orders').innerHTML=os.length?os.map(orderCard).join(''):'<div class="empty">कोई delivery order नहीं मिला।</div>';
+ let ps = pf==='all-records' ? [...partners] : partners.filter(p=>p.is_active);
+ if(pf==='online') ps=ps.filter(p=>p.is_active&&p.is_online);
+ if(pf==='available') ps=ps.filter(p=>p.is_active&&p.is_online&&!p.current_order_id);
+ if(pf==='inactive') ps=partners.filter(p=>!p.is_active);
+ if(q)ps=ps.filter(p=>(p.name+' '+p.mobile+' '+(p.vehicle_number||'')).toLowerCase().includes(q));
+ document.getElementById('partnerCount').textContent=ps.length;
+ document.getElementById('partners').innerHTML=ps.length?ps.map(partnerCard).join(''):'<div class="empty">कोई partner नहीं मिला।</div>';
+}
+function orderCard(o){
+ const p=partners.find(x=>x.id===o.delivery_partner_id), assigned=p?esc(p.name):'Unassigned';
+ return `<div class="order">
+  <div class="row"><span class="oid">#${esc(o.order_number||o.id?.slice(0,8))}</span><span class="status">${esc(o.status||'Order Placed')}</span></div>
+  <div class="ordergrid"><div><div class="muted">Customer</div>${esc(o.customer_name||'Customer')}</div><div><div class="muted">Total</div>₹${Number(o.total||0).toLocaleString('en-IN')}</div><div><div class="muted">Mobile</div>${esc(mobile(o)||'-')}</div><div><div class="muted">Partner</div>${assigned}</div></div>
+  <div class="muted" style="margin-top:9px">📍 ${esc(addr(o))}</div>
+  ${active(o)?`<button class="assign" onclick="openAssign('${esc(o.id)}')">${p?'🔁 Change Partner':'🚴 Assign Delivery Partner'}</button>`:''}
+ </div>`
+}
+function partnerCard(p){
+ const current=orders.find(o=>o.id===p.current_order_id);
+ return `<div class="partner">
+  <div class="row"><div><b><span class="dot ${p.is_online?'on':''}"></span>${esc(p.name)}</b><div class="muted" style="margin-top:5px">📞 ${esc(p.mobile)} · 🛵 ${esc(p.vehicle_type||'Bike')} ${p.vehicle_number?'· '+esc(p.vehicle_number):''}</div></div><span class="status">${p.is_online?'ONLINE':'OFFLINE'}</span></div>
+  <div class="muted" style="margin-top:8px">${current?'📦 Current: #'+esc(current.order_number):'✓ Available for assignment'} · Delivered today: ${Number(p.delivered_today)||0}</div>
+  <div class="partner-actions">
+    <button class="mini" onclick="toggleOnline('${esc(p.id)}',${!p.is_online})">${p.is_online?'🔴 Go Offline':'🟢 Go Online'}</button>
+    <button class="mini" onclick="callPartner('${esc(p.mobile)}')">📞 Call</button>
+    <button class="mini" onclick="toggleActive('${esc(p.id)}',${!p.is_active})">${p.is_active?'🚫 Deactivate':'♻️ Reactivate'}</button>
+    <button class="mini" style="border-color:rgba(248,113,113,.25);color:#fecaca" onclick="removePartner('${esc(p.id)}')">🗑️ Delete</button>
+</div>
+ </div>`
+}
+async function toggleOnline(id,val){
+ const {error}=await db.from('delivery_partners').update({is_online:val,updated_at:new Date().toISOString()}).eq('id',id);
+ if(error){toast('Online status update नहीं हुआ');console.error(error);return}
+ await loadAll();toast(val?'Partner Online':'Partner Offline');
+}
+function callPartner(m){if(m)location.href='tel:'+m}
+
+async function toggleActive(id,val){
+    const p = partners.find(x=>x.id===id);
+    if(!p) return;
+
+    if(!val && p.current_order_id){
+        const current = orders.find(o=>o.id===p.current_order_id);
+        toast('पहले current order को दूसरे partner को assign करें।');
+        if(current) setTimeout(()=>openAssign(current.id),350);
+        return;
+    }
+
+    const {error}=await db.from('delivery_partners')
+        .update({
+            is_active: val,
+            is_online: val ? p.is_online : false,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id',id);
+
+    if(error){
+        console.error(error);
+        toast('Partner status update नहीं हुआ: '+error.message);
+        return;
+    }
+
+    await loadAll();
+    toast(val?'Partner reactivated ✅':'Partner deactivated 🚫');
+}
+
+async function removePartner(id){
+    const p = partners.find(x=>x.id===id);
+    if(!p) return;
+
+    // Safety: never delete a partner who is currently assigned to an active order.
+    const activeOrders = orders.filter(o =>
+        o.delivery_partner_id === id && active(o)
+    );
+
+    if(activeOrders.length){
+        const list = activeOrders.slice(0,3)
+            .map(o=>'#'+(o.order_number||o.id.slice(0,8)))
+            .join(', ');
+
+        toast('Delete नहीं कर सकते: active order '+list);
+        setTimeout(()=>{
+            if(activeOrders[0]) openAssign(activeOrders[0].id);
+        },450);
+        return;
+    }
+
+    const ok = confirm(
+        'क्या आप "'+p.name+'" को permanently delete करना चाहते हैं?\\n\\n' +
+        'पुराने delivered orders का record रहेगा, लेकिन partner record हट जाएगा।'
+    );
+    if(!ok) return;
+
+    // Clear any stale current_order reference first.
+    await db.from('delivery_partners')
+        .update({current_order_id:null,updated_at:new Date().toISOString()})
+        .eq('id',id);
+
+    const {error}=await db.from('delivery_partners')
+        .delete()
+        .eq('id',id);
+
+    if(error){
+        console.error(error);
+        toast('Partner delete नहीं हुआ: '+error.message);
+        return;
+    }
+
+    await loadAll();
+    toast('Delivery partner deleted 🗑️');
+}
+
+function openAssign(id){
+ modalOrderId=id;
+ const o=orders.find(x=>x.id===id);
+ const available=partners.filter(p=>p.is_active);
+ document.getElementById('modalTitle').textContent='🚴 Assign Delivery Partner';
+ document.getElementById('modalBody').innerHTML=`<div class="field"><label>ORDER</label><div class="input">#${esc(o?.order_number||'ORDER')} · ₹${Number(o?.total||0).toLocaleString('en-IN')}</div></div>
+ <div class="field"><label>DELIVERY PARTNER</label><select class="select" id="assignPartner"><option value="">— Unassign —</option>${available.map(p=>`<option value="${p.id}" ${p.id===o?.delivery_partner_id?'selected':''}>${esc(p.name)} · ${esc(p.mobile)} · ${p.is_online?'ONLINE':'OFFLINE'}${p.current_order_id&&p.current_order_id!==id?' · BUSY':''}</option>`).join('')}</select></div>
+ <button class="fullbtn" onclick="saveAssignment()">💾 Save Assignment</button>`;
+ document.getElementById('modal').classList.add('show');
+}
+async function saveAssignment(){
+ const pid=document.getElementById('assignPartner').value||null,o=orders.find(x=>x.id===modalOrderId);
+ if(!o)return;
+ if(pid){
+  const p=partners.find(x=>x.id===pid);
+  if(p?.current_order_id&&p.current_order_id!==o.id){if(!confirm('यह partner पहले से दूसरे order पर assigned है। फिर भी assign करें?'))return}
+ }
+ const old=o.delivery_partner_id;
+ const {error}=await db.from('orders').update({delivery_partner_id:pid,updated_at:new Date().toISOString()}).eq('id',o.id);
+ if(error){console.error(error);toast('Order assignment failed: '+error.message);return}
+ if(old&&old!==pid) await db.from('delivery_partners').update({current_order_id:null,updated_at:new Date().toISOString()}).eq('id',old);
+ if(pid) await db.from('delivery_partners').update({current_order_id:o.id,updated_at:new Date().toISOString()}).eq('id',pid);
+ closeModal();await loadAll();toast(pid?'Delivery partner assigned ✅':'Delivery unassigned');
+}
+function openAddPartner(){
+ document.getElementById('modalTitle').textContent='➕ Add Delivery Partner';
+ document.getElementById('modalBody').innerHTML=`<div class="field"><label>NAME *</label><input class="input" id="pn" placeholder="Partner name"></div><div class="field"><label>MOBILE *</label><input class="input" id="pm" maxlength="10" placeholder="10 digit mobile"></div><div class="field"><label>VEHICLE</label><select class="select" id="pv"><option>Bike</option><option>Scooter</option><option>Cycle</option><option>Other</option></select></div><div class="field"><label>VEHICLE NUMBER</label><input class="input" id="pvn" placeholder="MP12AB1234"></div><button class="fullbtn" onclick="savePartner()">💾 Add Partner</button>`;
+ document.getElementById('modal').classList.add('show');
+}
+async function savePartner(){
+ const name=document.getElementById('pn').value.trim(),mobile=document.getElementById('pm').value.trim(),vehicle=document.getElementById('pv').value,vehicle_number=document.getElementById('pvn').value.trim();
+ if(!name||!/^[0-9]{10}$/.test(mobile)){toast('Name और valid 10 digit mobile जरूरी है');return}
+ const {error}=await db.from('delivery_partners').insert({name,mobile,vehicle_type:vehicle,vehicle_number:vehicle_number||null,is_online:false,is_active:true});
+ if(error){console.error(error);toast('Partner add नहीं हुआ: '+error.message);return}
+ closeModal();await loadAll();toast('Delivery partner added ✅');
+}
+if(db){
+ db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')location.replace('admin-login.html')});
+}
+document.getElementById('logout').onclick=async()=>{if(confirm('Admin logout करना चाहते हैं?')){await db.auth.signOut();localStorage.removeItem('nrAdminLoggedIn');localStorage.removeItem('nrAdminEmail');localStorage.removeItem('nrAdminLoginTime');location.replace('admin-login.html')}};
+setInterval(()=>{if(verified)loadAll()},30000);
+loadAll();
+
+async function adminLogout(){
+    try{
+        await db.auth.signOut();
+    }catch(e){
+        console.error(e);
+    }
+    localStorage.removeItem('nrAdminLoggedIn');
+    localStorage.removeItem('nrAdminEmail');
+    localStorage.removeItem('nrAdminLoginTime');
+    window.location.href='admin-login.html';
+}
+</script>
+</body>
+</html>

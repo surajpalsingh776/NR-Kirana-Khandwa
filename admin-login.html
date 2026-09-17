@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#020617"
+    >
+
+    <title>NR Kirana Khandwa - Admin Login</title>
+
+
+    <!-- =========================================
+         PWA
+    ========================================== -->
+
+    <link
+        rel="manifest"
+        href="./admin-manifest.json"
+    >
+
+
+    <!-- =========================================
+         SUPABASE
+    ========================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+
+    <script
+        src="./supabase-config.js">
+    </script>
+
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:
+                Inter,
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+
+        body{
+
+            min-height:100vh;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            padding:20px;
+
+            color:#fff;
+
+            background:
+
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(37,99,235,.30),
+                    transparent 35%
+                ),
+
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(124,58,237,.28),
+                    transparent 35%
+                ),
+
+                #020617;
+
+            overflow:hidden;
+
+        }
+
+
+        /* =========================================
+           BACKGROUND ORBS
+        ========================================== */
+
+        .orb{
+
+            position:fixed;
+
+            width:260px;
+
+            height:260px;
+
+            border-radius:50%;
+
+            filter:blur(85px);
+
+            opacity:.32;
+
+            pointer-events:none;
+
+        }
+
+
+        .orb-one{
+
+            top:-120px;
+
+            left:-100px;
+
+            background:#2563eb;
+
+        }
+
+
+        .orb-two{
+
+            right:-100px;
+
+            bottom:-120px;
+
+            background:#9333ea;
+
+        }
+
+
+        /* =========================================
+           LOGIN CARD
+        ========================================== */
+
+        .login-card{
+
+            width:100%;
+
+            max-width:430px;
+
+            padding:34px 28px;
+
+            position:relative;
+
+            z-index:5;
+
+            border-radius:32px;
+
+            background:
+                rgba(15,23,42,.82);
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
+            backdrop-filter:
+                blur(25px);
+
+            -webkit-backdrop-filter:
+                blur(25px);
+
+            box-shadow:
+
+                0 35px 90px
+                rgba(0,0,0,.60),
+
+                inset 0 1px 0
+                rgba(255,255,255,.08);
+
+        }
+
+
+        /* =========================================
+           BRAND
+        ========================================== */
+
+        .brand{
+
+            text-align:center;
+
+            margin-bottom:28px;
+
+        }
+
+
+        .logo{
+
+            width:86px;
+
+            height:86px;
+
+            margin:
+                0 auto 16px;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:27px;
+
+            font-size:43px;
+
+            background:
+
+                linear-gradient(
+                    145deg,
+                    #1e293b,
+                    #020617
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
+            box-shadow:
+
+                10px 10px 25px
+                rgba(0,0,0,.45),
+
+                -5px -5px 16px
+                rgba(255,255,255,.03);
+
+        }
+
+
+        .brand h1{
+
+            font-size:25px;
+
+            font-weight:900;
+
+            letter-spacing:-.6px;
+
+        }
+
+
+        .brand p{
+
+            margin-top:7px;
+
+            color:#94a3b8;
+
+            font-size:14px;
+
+        }
+
+
+        .badge{
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:7px;
+
+            margin-top:13px;
+
+            padding:7px 14px;
+
+            border-radius:999px;
+
+            color:#cbd5e1;
+
+            font-size:12px;
+
+            background:
+                rgba(255,255,255,.05);
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+
+        }
+
+
+        /* =========================================
+           STATUS
+        ========================================== */
+
+        .status{
+
+            display:none;
+
+            padding:13px 14px;
+
+            margin-bottom:18px;
+
+            border-radius:15px;
+
+            font-size:13px;
+
+            line-height:1.5;
+
+            word-break:break-word;
+
+        }
+
+
+        .status.show{
+
+            display:block;
+
+        }
+
+
+        .status.error{
+
+            color:#fecaca;
+
+            background:
+                rgba(127,29,29,.32);
+
+            border:
+                1px solid
+                rgba(248,113,113,.28);
+
+        }
+
+
+        .status.success{
+
+            color:#bbf7d0;
+
+            background:
+                rgba(20,83,45,.30);
+
+            border:
+                1px solid
+                rgba(74,222,128,.25);
+
+        }
+
+
+        /* =========================================
+           FORM
+        ========================================== */
+
+        .field{
+
+            margin-bottom:18px;
+
+        }
+
+
+        .field label{
+
+            display:block;
+
+            margin-bottom:8px;
+
+            color:#cbd5e1;
+
+            font-size:13px;
+
+            font-weight:800;
+
+        }
+
+
+        .input-wrap{
+
+            position:relative;
+
+        }
+
+
+        .input-icon{
+
+            position:absolute;
+
+            left:15px;
+
+            top:50%;
+
+            transform:
+                translateY(-50%);
+
+            font-size:18px;
+
+            opacity:.85;
+
+            pointer-events:none;
+
+        }
+
+
+        input{
+
+            width:100%;
+
+            height:55px;
+
+            padding:
+                0 48px;
+
+            border:0;
+
+            outline:0;
+
+            border-radius:17px;
+
+            color:#fff;
+
+            background:
+                rgba(2,6,23,.78);
+
+            border:
+                1px solid
+                rgba(255,255,255,.10);
+
+            box-shadow:
+
+                inset 4px 4px 10px
+                rgba(0,0,0,.30),
+
+                inset -2px -2px 8px
+                rgba(255,255,255,.02);
+
+            transition:.25s;
+
+        }
+
+
+        input:focus{
+
+            border-color:
+                rgba(96,165,250,.75);
+
+            box-shadow:
+
+                0 0 0 3px
+                rgba(59,130,246,.12),
+
+                inset 4px 4px 10px
+                rgba(0,0,0,.25);
+
+        }
+
+
+        input::placeholder{
+
+            color:#64748b;
+
+        }
+
+
+        /* =========================================
+           PASSWORD
+        ========================================== */
+
+        .toggle-password{
+
+            position:absolute;
+
+            right:13px;
+
+            top:50%;
+
+            transform:
+                translateY(-50%);
+
+            border:0;
+
+            background:none;
+
+            color:#94a3b8;
+
+            cursor:pointer;
+
+            font-size:18px;
+
+        }
+
+
+        /* =========================================
+           LOGIN BUTTON
+        ========================================== */
+
+        .login-btn{
+
+            width:100%;
+
+            height:56px;
+
+            margin-top:3px;
+
+            border:0;
+
+            border-radius:18px;
+
+            color:#fff;
+
+            font-size:16px;
+
+            font-weight:900;
+
+            cursor:pointer;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #7c3aed
+                );
+
+            box-shadow:
+
+                0 14px 30px
+                rgba(37,99,235,.30),
+
+                inset 0 1px 0
+                rgba(255,255,255,.25);
+
+            transition:.2s;
+
+        }
+
+
+        .login-btn:hover{
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+
+                0 18px 36px
+                rgba(37,99,235,.38),
+
+                inset 0 1px 0
+                rgba(255,255,255,.25);
+
+        }
+
+
+        .login-btn:active{
+
+            transform:
+                translateY(1px);
+
+        }
+
+
+        .login-btn:disabled{
+
+            opacity:.65;
+
+            cursor:not-allowed;
+
+            transform:none;
+
+        }
+
+
+        /* =========================================
+           LOADER
+        ========================================== */
+
+        .loader{
+
+            display:inline-block;
+
+            width:17px;
+
+            height:17px;
+
+            margin-right:7px;
+
+            vertical-align:middle;
+
+            border-radius:50%;
+
+            border:
+                2px solid
+                rgba(255,255,255,.25);
+
+            border-top-color:#fff;
+
+            animation:
+                spin .7s linear infinite;
+
+        }
+
+
+        @keyframes spin{
+
+            to{
+
+                transform:rotate(360deg);
+
+            }
+
+        }
+
+
+        /* =========================================
+           BACK BUTTON
+        ========================================== */
+
+        .back-btn{
+
+            width:100%;
+
+            height:48px;
+
+            margin-top:14px;
+
+            border-radius:16px;
+
+            color:#cbd5e1;
+
+            background:
+                rgba(255,255,255,.04);
+
+            border:
+                1px solid
+                rgba(255,255,255,.10);
+
+            cursor:pointer;
+
+            font-weight:800;
+
+        }
+
+
+        .back-btn:hover{
+
+            background:
+                rgba(255,255,255,.07);
+
+        }
+
+
+        /* =========================================
+           SECURITY
+        ========================================== */
+
+        .security{
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:7px;
+
+            margin-top:22px;
+
+            color:#64748b;
+
+            font-size:11px;
+
+            text-align:center;
+
+        }
+
+
+        .footer{
+
+            margin-top:18px;
+
+            text-align:center;
+
+            color:#475569;
+
+            font-size:11px;
+
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================== */
+
+        @media(max-width:480px){
+
+            body{
+
+                padding:14px;
+
+            }
+
+
+            .login-card{
+
+                padding:
+                    28px 20px;
+
+                border-radius:28px;
+
+            }
+
+
+            .brand h1{
+
+                font-size:22px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="orb orb-one"></div>
+
+    <div class="orb orb-two"></div>
+
+
+    <main class="login-card">
+
+
+        <!-- =====================================
+             BRAND
+        ====================================== -->
+
+        <div class="brand">
+
+            <!-- Temporary icon -->
+            <!-- Final logo later -->
+
+            <div class="logo">
+                🛒
+            </div>
+
+
+            <h1>
+                NR Kirana Khandwa
+            </h1>
+
+
+            <p>
+                Admin Control Panel
+            </p>
+
+
+            <div class="badge">
+                🔐 Secure Admin Login
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             STATUS
+        ====================================== -->
+
+        <div
+            id="statusBox"
+            class="status"
+        ></div>
+
+
+        <!-- =====================================
+             LOGIN FORM
+        ====================================== -->
+
+        <form
+            id="loginForm"
+            autocomplete="on"
+        >
+
+
+            <!-- EMAIL -->
+
+            <div class="field">
+
+                <label>
+                    Admin Email
+                </label>
+
+
+                <div class="input-wrap">
+
+                    <span class="input-icon">
+                        📧
+                    </span>
+
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="admin@example.com"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="field">
+
+                <label>
+                    Password
+                </label>
+
+
+                <div class="input-wrap">
+
+                    <span class="input-icon">
+                        🔑
+                    </span>
+
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="अपना password डालें"
+                        autocomplete="current-password"
+                        required
+                    >
+
+
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="toggle-password"
+                    >
+                        👁️
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                id="loginBtn"
+                class="login-btn"
+            >
+
+                🔐 Admin Login
+
+            </button>
+
+
+        </form>
+
+
+        <!-- =====================================
+             CUSTOMER WEBSITE
+        ====================================== -->
+
+        <button
+            type="button"
+            class="back-btn"
+            onclick="location.href='index.html'"
+        >
+
+            ← Customer Website
+
+        </button>
+
+
+        <div class="security">
+
+            🛡️ केवल authorized Admin को access मिलेगा
+
+        </div>
+
+
+        <div class="footer">
+
+            NR Kirana Khandwa • Admin Panel
+
+        </div>
+
+
+    </main>
+
+
+
+<script>
+
+    // ==========================================
+    // ELEMENTS
+    // ==========================================
+
+    const form =
+        document.getElementById(
+            "loginForm"
+        );
+
+
+    const emailInput =
+        document.getElementById(
+            "email"
+        );
+
+
+    const passwordInput =
+        document.getElementById(
+            "password"
+        );
+
+
+    const loginBtn =
+        document.getElementById(
+            "loginBtn"
+        );
+
+
+    const statusBox =
+        document.getElementById(
+            "statusBox"
+        );
+
+
+    const togglePassword =
+        document.getElementById(
+            "togglePassword"
+        );
+
+
+    // ==========================================
+    // SUPABASE CLIENT
+    // ==========================================
+
+    const db =
+        window.nrSupabase;
+
+
+    // ==========================================
+    // STATUS MESSAGE
+    // ==========================================
+
+    function showStatus(
+        message,
+        type = "error"
+    ){
+
+        statusBox.textContent =
+            message;
+
+        statusBox.className =
+            "status show " + type;
+
+    }
+
+
+    function clearStatus(){
+
+        statusBox.textContent =
+            "";
+
+        statusBox.className =
+            "status";
+
+    }
+
+
+    // ==========================================
+    // SUPABASE CHECK
+    // ==========================================
+
+    if(!db){
+
+        showStatus(
+            "❌ Supabase connection available नहीं है। supabase-config.js check करें।"
+        );
+
+        loginBtn.disabled =
+            true;
+
+    }
+
+
+    // ==========================================
+    // PASSWORD SHOW / HIDE
+    // ==========================================
+
+    togglePassword.addEventListener(
+        "click",
+        function(){
+
+            if(
+                passwordInput.type ===
+                "password"
+            ){
+
+                passwordInput.type =
+                    "text";
+
+                togglePassword.textContent =
+                    "🙈";
+
+            }
+            else{
+
+                passwordInput.type =
+                    "password";
+
+                togglePassword.textContent =
+                    "👁️";
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // CHECK EXISTING SESSION
+    // ==========================================
+
+    async function checkExistingSession(){
+
+        if(!db){
+
+            return;
+
+        }
+
+
+        try{
+
+            const {
+                data,
+                error
+            } =
+                await db.auth.getSession();
+
+
+            if(error){
+
+                console.error(
+                    "GET SESSION ERROR:",
+                    error
+                );
+
+                return;
+
+            }
+
+
+            const session =
+                data.session;
+
+
+            if(!session){
+
+                return;
+
+            }
+
+
+            console.log(
+                "Existing Supabase User:",
+                session.user.id
+            );
+
+
+            // ==================================
+            // CHECK ADMIN TABLE
+            // ==================================
+
+            const {
+                data: admin,
+                error: adminError
+            } =
+                await db
+                    .from("admin_users")
+                    .select(
+                        "id,email,is_active"
+                    )
+                    .eq(
+                        "id",
+                        session.user.id
+                    )
+                    .maybeSingle();
+
+
+            if(adminError){
+
+                console.error(
+                    "EXISTING SESSION ADMIN ERROR:",
+                    adminError
+                );
+
+                return;
+
+            }
+
+
+            if(admin){
+
+                localStorage.setItem(
+                    "nrAdminLoggedIn",
+                    "true"
+                );
+
+                localStorage.setItem(
+                    "nrAdminEmail",
+                    admin.email
+                );
+
+                localStorage.setItem(
+                    "nrAdminLoginTime",
+                    Date.now().toString()
+                );
+
+
+                location.href =
+                    "admin.html";
+
+            }
+
+        }
+        catch(error){
+
+            console.error(
+                "SESSION CHECK ERROR:",
+                error
+            );
+
+        }
+
+    }
+
+
+    checkExistingSession();
+
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
+
+    form.addEventListener(
+        "submit",
+        async function(event){
+
+            event.preventDefault();
+
+
+            clearStatus();
+
+
+            if(!db){
+
+                showStatus(
+                    "❌ Supabase connection available नहीं है।"
+                );
+
+                return;
+
+            }
+
+
+            const email =
+                emailInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+            const password =
+                passwordInput.value;
+
+
+            if(!email){
+
+                showStatus(
+                    "Admin email डालें।"
+                );
+
+                return;
+
+            }
+
+
+            if(!password){
+
+                showStatus(
+                    "Password डालें।"
+                );
+
+                return;
+
+            }
+
+
+            // ==================================
+            // LOADING
+            // ==================================
+
+            loginBtn.disabled =
+                true;
+
+
+            loginBtn.innerHTML =
+                '<span class="loader"></span> Login हो रहा है...';
+
+
+            try{
+
+                console.log(
+                    "🔐 Supabase login शुरू..."
+                );
+
+
+                // ==================================
+                // SUPABASE LOGIN
+                // ==================================
+
+                const {
+                    data,
+                    error
+                } =
+                    await db.auth
+                        .signInWithPassword({
+
+                            email:
+                                email,
+
+                            password:
+                                password
+
+                        });
+
+
+                console.log(
+                    "AUTH RESPONSE:",
+                    data,
+                    error
+                );
+
+
+                if(error){
+
+                    throw new Error(
+                        "Supabase Login Error: " +
+                        error.message
+                    );
+
+                }
+
+
+                if(!data){
+
+                    throw new Error(
+                        "Supabase ने कोई response नहीं दिया।"
+                    );
+
+                }
+
+
+                if(!data.user){
+
+                    throw new Error(
+                        "User session नहीं मिली।"
+                    );
+
+                }
+
+
+                console.log(
+                    "✅ Auth successful"
+                );
+
+
+                console.log(
+                    "Logged User ID:",
+                    data.user.id
+                );
+
+
+                console.log(
+                    "Logged User Email:",
+                    data.user.email
+                );
+
+
+                // ==================================
+                // ADMIN VERIFICATION
+                // ==================================
+
+                console.log(
+                    "🔎 Admin verification शुरू..."
+                );
+
+
+                const {
+                    data: admin,
+                    error: adminError
+                } =
+                    await db
+                        .from("admin_users")
+                        .select(
+                            "id,email,is_active"
+                        )
+                        .eq(
+                            "id",
+                            data.user.id
+                        )
+                        .maybeSingle();
+
+
+                // ==================================
+                // SHOW EXACT ADMIN ERROR
+                // ==================================
+
+                if(adminError){
+
+                    console.error(
+                        "ADMIN VERIFICATION ERROR:",
+                        adminError
+                    );
+
+
+                    await db.auth.signOut();
+
+
+                    throw new Error(
+                        "Admin verification error: " +
+                        (
+                            adminError.message ||
+                            "Unknown database error"
+                        )
+                    );
+
+                }
+
+
+                console.log(
+                    "Admin record:",
+                    admin
+                );
+
+
+                // ==================================
+                // ADMIN NOT FOUND
+                // ==================================
+
+                if(!admin){
+
+                    await db.auth.signOut();
+
+
+                    throw new Error(
+                        "यह account admin_users table में नहीं मिला।"
+                    );
+
+                }
+
+
+                // ==================================
+                // ADMIN INACTIVE
+                // ==================================
+
+                if(
+                    admin.is_active !==
+                    true
+                ){
+
+                    await db.auth.signOut();
+
+
+                    throw new Error(
+                        "Admin account inactive है।"
+                    );
+
+                }
+
+
+                // ==================================
+                // SUCCESS
+                // ==================================
+
+                localStorage.setItem(
+                    "nrAdminLoggedIn",
+                    "true"
+                );
+
+
+                localStorage.setItem(
+                    "nrAdminEmail",
+                    admin.email
+                );
+
+
+                localStorage.setItem(
+                    "nrAdminLoginTime",
+                    Date.now().toString()
+                );
+
+
+                showStatus(
+                    "✅ Admin Login successful! Dashboard खुल रहा है...",
+                    "success"
+                );
+
+
+                console.log(
+                    "🎉 ADMIN LOGIN SUCCESS"
+                );
+
+
+                setTimeout(
+                    function(){
+
+                        location.href =
+                            "admin.html";
+
+                    },
+                    800
+                );
+
+
+            }
+            catch(error){
+
+                console.error(
+                    "❌ FINAL LOGIN ERROR:",
+                    error
+                );
+
+
+                let message =
+                    "Login failed.";
+
+
+                if(
+                    error &&
+                    error.message
+                ){
+
+                    message =
+                        error.message;
+
+                }
+
+
+                // ==================================
+                // FAILED TO FETCH
+                // ==================================
+
+                if(
+                    message
+                        .toLowerCase()
+                        .includes(
+                            "failed to fetch"
+                        )
+                ){
+
+                    message =
+                        "❌ Failed to fetch — Supabase Project URL, Publishable Key या internet connection check करें।";
+
+                }
+
+
+                // ==================================
+                // INVALID CREDENTIALS
+                // ==================================
+
+                else if(
+                    message
+                        .toLowerCase()
+                        .includes(
+                            "invalid login credentials"
+                        )
+                ){
+
+                    message =
+                        "❌ Email या password गलत है।";
+
+                }
+
+
+                // ==================================
+                // EMAIL NOT CONFIRMED
+                // ==================================
+
+                else if(
+                    message
+                        .toLowerCase()
+                        .includes(
+                            "email not confirmed"
+                        )
+                ){
+
+                    message =
+                        "❌ Admin email confirm नहीं हुआ है। Supabase Authentication → Users में email confirmation check करें।";
+
+                }
+
+
+                showStatus(
+                    message
+                );
+
+
+                loginBtn.disabled =
+                    false;
+
+
+                loginBtn.innerHTML =
+                    "🔐 Admin Login";
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // AUTH STATE CHANGE
+    // ==========================================
+
+    if(db){
+
+        db.auth.onAuthStateChange(
+            function(
+                event,
+                session
+            ){
+
+                console.log(
+                    "Supabase Auth Event:",
+                    event
+                );
+
+            }
+        );
+
+    }
+
+
+    // ==========================================
+    // SERVICE WORKER
+    // ==========================================
+
+    if(
+        "serviceWorker" in navigator
+    ){
+
+        window.addEventListener(
+            "load",
+            function(){
+
+                navigator.serviceWorker
+                    .register(
+                        "./admin-service-worker.js"
+                    )
+                    .then(
+                        function(){
+
+                            console.log(
+                                "✅ Admin Service Worker registered"
+                            );
+
+                        }
+                    )
+                    .catch(
+                        function(error){
+
+                            console.error(
+                                "Service Worker Error:",
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
+    }
+
+</script>
+
+</body>
+
+</html>

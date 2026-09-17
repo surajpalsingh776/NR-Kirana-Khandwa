@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NR Kirana Khandwa</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f6f8;
+      color: #222;
+      padding-bottom: 85px;
+    }
+
+    /* ================= HEADER ================= */
+
+    .header {
+      background: #0b8f3c;
+      color: white;
+      padding: 15px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .logo {
+      font-size: 28px;
+    }
+
+    .brand-name {
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .notification {
+      color: white;
+      text-decoration: none;
+      font-size: 24px;
+      position: relative;
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: 0;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background: #ff3b30;
+      border-radius: 50%;
+    }
+
+    .notification-badge{
+      position:absolute;
+      top:-8px;
+      right:-10px;
+      min-width:18px;
+      height:18px;
+      padding:0 5px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#ff3b30;
+      color:#fff;
+      border:2px solid #0b8f3c;
+      border-radius:999px;
+      font-size:9px;
+      font-weight:900;
+      box-shadow:0 4px 10px rgba(0,0,0,.25);
+    }
+
+
+    /* ================= LOCATION ================= */
+
+    .location {
+      margin-top: 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+
+    /* ================= SEARCH ================= */
+
+    .search-box {
+      margin-top: 12px;
+      background: white;
+      border-radius: 10px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-box span {
+      font-size: 18px;
+    }
+
+    .search-box input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+
+    /* ================= MAIN ================= */
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 15px;
+    }
+
+
+    /* ================= BANNER ================= */
+
+    .banner {
+      background: linear-gradient(
+        135deg,
+        #0b8f3c,
+        #21b75d
+      );
+
+      color: white;
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 150px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .banner-content {
+      width: 68%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .banner-content h2 {
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .banner-content p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .banner-icon {
+      font-size: 58px;
+      position: relative;
+      z-index: 2;
+    }
+
+
+    /* ================= OFFERS BUTTON ================= */
+
+    .offers-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: white;
+      color: #0b8f3c;
+      padding: 9px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+
+    /* ================= SECTION ================= */
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 0 12px;
+    }
+
+    .section-title h3 {
+      font-size: 18px;
+    }
+
+    .see-all {
+      color: #0b8f3c;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+
+    /* ================= CATEGORIES ================= */
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .category {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 5px;
+      text-align: center;
+      text-decoration: none;
+      color: #222;
+      box-shadow: 0 2px 7px rgba(0,0,0,.05);
+    }
+
+    .category-icon {
+      font-size: 30px;
+      margin-bottom: 6px;
+    }
+
+    .category-name {
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+
+    /* ================= SPECIAL OFFER ================= */
+
+    .special-offer {
+      background: #fff3cd;
+      border-radius: 13px;
+      padding: 13px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .special-icon {
+      font-size: 35px;
+    }
+
+    .special-content {
+      flex: 1;
+    }
+
+    .special-content strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .special-content span {
+      color: #666;
+      font-size: 11px;
+    }
+
+    .special-link {
+      color: #0b8f3c;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+
+    /* ================= PRODUCTS ================= */
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 13px;
+      padding: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .product-image {
+      height: 105px;
+      background: #f7f8fa;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 55px;
+      margin-bottom: 10px;
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.3;
+      min-height: 36px;
+    }
+
+    .product-unit {
+      color: #777;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .product-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 9px;
+    }
+
+    .price {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .add-btn {
+      background: #0b8f3c;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .add-btn:hover {
+      opacity: .9;
+    }
+
+
+    /* ================= CART FLOATING ================= */
+
+    .cart-floating {
+      position: fixed;
+      bottom: 78px;
+      right: 15px;
+      background: #0b8f3c;
+      color: white;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 25px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      z-index: 15;
+    }
+
+
+    /* ================= BOTTOM NAV ================= */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 30;
+    }
+
+    .nav-item {
+      color: #777;
+      text-decoration: none;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .nav-item span {
+      display: block;
+      font-size: 21px;
+      margin-bottom: 2px;
+    }
+
+    .nav-item.active {
+      color: #0b8f3c;
+      font-weight: bold;
+    }
+
+
+    /* ================= DESKTOP ================= */
+
+    @media (min-width: 601px) {
+
+      .bottom-nav {
+        max-width: 600px;
+        left: 50%;
+        right: auto;
+        width: 100%;
+        transform: translateX(-50%);
+      }
+
+      .cart-floating {
+        right: calc(50% - 285px);
+      }
+
+    }
+
+
+    /* ================= SMALL MOBILE ================= */
+
+    @media (max-width: 360px) {
+
+      .categories {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .category-icon {
+        font-size: 25px;
+      }
+
+      .category-name {
+        font-size: 9px;
+      }
+
+      .banner-content h2 {
+        font-size: 21px;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="header">
+
+    <div class="header-top">
+
+      <div class="logo-area">
+
+        <div class="logo">
+          🛒
+        </div>
+
+        <div class="brand-name">
+          NR Kirana Khandwa
+        </div>
+
+      </div>
+
+
+      <a
+        href="notifications.html"
+        class="notification"
+        id="notificationButton"
+        title="Notifications"
+      >
+        🔔
+        <span class="notification-badge" id="notificationBadge" style="display:none">0</span>
+      </a>
+
+    </div>
+
+
+    <div class="location">
+      📍 Khandwa, Madhya Pradesh
+    </div>
+
+
+    <div class="search-box">
+
+      <span>🔍</span>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Grocery खोजें..."
+        oninput="searchProducts()"
+      >
+
+    </div>
+
+  </header>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="container">
+
+
+    <!-- ================= BANNER ================= -->
+
+    <div class="banner">
+
+      <div class="banner-content">
+
+        <h2>
+          Grocery घर बैठे 🛍️
+        </h2>
+
+        <p>
+          NR Kirana Khandwa से रोज़मर्रा का सामान
+          आसानी से order करें।
+        </p>
+
+
+        <!-- OFFERS LINK -->
+
+        <a
+          href="offers.html"
+          class="offers-btn"
+        >
+          🎁 आज के Offers देखें
+        </a>
+
+      </div>
+
+
+      <div class="banner-icon">
+        🛒
+      </div>
+
+    </div>
+
+
+    <!-- ================= CATEGORIES ================= -->
+
+    <div class="section-title">
+
+      <h3>
+        Categories
+      </h3>
+
+      <a
+        href="categories.html"
+        class="see-all"
+      >
+        सभी देखें →
+      </a>
+
+    </div>
+
+
+    <div class="categories">
+
+      <a
+        href="products.html?category=kirana"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🌾
+        </div>
+
+        <div class="category-name">
+          किराना
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=dairy"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🥛
+        </div>
+
+        <div class="category-name">
+          डेयरी
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=snacks"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🍪
+        </div>
+
+        <div class="category-name">
+          Snacks
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=beverages"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🥤
+        </div>
+
+        <div class="category-name">
+          Drinks
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=personal-care"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🧴
+        </div>
+
+        <div class="category-name">
+          Personal Care
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=household"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🧹
+        </div>
+
+        <div class="category-name">
+          Household
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=baby-care"
+        class="category"
+      >
+
+        <div class="category-icon">
+          👶
+        </div>
+
+        <div class="category-name">
+          Baby Care
+        </div>
+
+      </a>
+
+
+      <a
+        href="products.html?category=home-kitchen"
+        class="category"
+      >
+
+        <div class="category-icon">
+          🍳
+        </div>
+
+        <div class="category-name">
+          Kitchen
+        </div>
+
+      </a>
+
+    </div>
+
+
+    <!-- ================= SPECIAL OFFER ================= -->
+
+    <div class="special-offer">
+
+      <div class="special-icon">
+        🎁
+      </div>
+
+
+      <div class="special-content">
+
+        <strong>
+          आज के Special Offers
+        </strong>
+
+        <span>
+          Grocery shopping पर शानदार बचत पाएं।
+        </span>
+
+      </div>
+
+
+      <a
+        href="offers.html"
+        class="special-link"
+      >
+        देखें →
+      </a>
+
+    </div>
+
+
+    <!-- ================= PRODUCTS ================= -->
+
+    <div class="section-title">
+
+      <h3>
+        Popular Products
+      </h3>
+
+      <a
+        href="products.html"
+        class="see-all"
+      >
+        सभी देखें →
+      </a>
+
+    </div>
+
+
+    <div
+      class="products"
+      id="productList"
+    >
+
+
+      <!-- PRODUCT 1 -->
+
+      <div
+        class="product"
+        data-name="Aashirvaad Atta 5 Kg"
+      >
+
+        <div class="product-image">
+          🌾
+        </div>
+
+        <div class="product-name">
+          Aashirvaad Atta 5 Kg
+        </div>
+
+        <div class="product-unit">
+          5 Kg
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹245
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Aashirvaad Atta 5 Kg',
+              245
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT 2 -->
+
+      <div
+        class="product"
+        data-name="Fortune Sunflower Oil 1 L"
+      >
+
+        <div class="product-image">
+          🫗
+        </div>
+
+        <div class="product-name">
+          Fortune Sunflower Oil 1 L
+        </div>
+
+        <div class="product-unit">
+          1 L
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹142
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Fortune Sunflower Oil 1 L',
+              142
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT 3 -->
+
+      <div
+        class="product"
+        data-name="Tata Salt 1 Kg"
+      >
+
+        <div class="product-image">
+          🧂
+        </div>
+
+        <div class="product-name">
+          Tata Salt 1 Kg
+        </div>
+
+        <div class="product-unit">
+          1 Kg
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹28
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Tata Salt 1 Kg',
+              28
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT 4 -->
+
+      <div
+        class="product"
+        data-name="Amul Taaza Milk 1 L"
+      >
+
+        <div class="product-image">
+          🥛
+        </div>
+
+        <div class="product-name">
+          Amul Taaza Milk 1 L
+        </div>
+
+        <div class="product-unit">
+          1 L
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹60
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Amul Taaza Milk 1 L',
+              60
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT 5 -->
+
+      <div
+        class="product"
+        data-name="Maggi Noodles 70 g"
+      >
+
+        <div class="product-image">
+          🍜
+        </div>
+
+        <div class="product-name">
+          Maggi Noodles 70 g
+        </div>
+
+        <div class="product-unit">
+          70 g
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹14
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Maggi Noodles 70 g',
+              14
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT 6 -->
+
+      <div
+        class="product"
+        data-name="Biscuits 200 g"
+      >
+
+        <div class="product-image">
+          🍪
+        </div>
+
+        <div class="product-name">
+          Biscuits 200 g
+        </div>
+
+        <div class="product-unit">
+          200 g
+        </div>
+
+        <div class="product-bottom">
+
+          <div class="price">
+            ₹30
+          </div>
+
+          <button
+            class="add-btn"
+            onclick="addToCart(
+              'Biscuits 200 g',
+              30
+            )"
+          >
+            + Add
+          </button>
+
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+    <!-- NO SEARCH RESULT -->
+
+    <div
+      id="noResult"
+      style="
+        display:none;
+        text-align:center;
+        background:white;
+        padding:25px;
+        border-radius:12px;
+        margin-top:15px;
+        color:#777;
+      "
+    >
+
+      🔍 कोई product नहीं मिला।
+
+    </div>
+
+
+  </main>
+
+
+  <!-- ================= FLOATING CART ================= -->
+
+  <a
+    href="cart.html"
+    class="cart-floating"
+    id="cartButton"
+  >
+    🛒 Cart (0)
+  </a>
+
+
+  <!-- ================= BOTTOM NAV ================= -->
+
+  <nav class="bottom-nav">
+
+
+    <a
+      href="home.html"
+      class="nav-item active"
+    >
+
+      <span>🏠</span>
+      Home
+
+    </a>
+
+
+    <a
+      href="categories.html"
+      class="nav-item"
+    >
+
+      <span>📂</span>
+      Categories
+
+    </a>
+
+
+    <a
+      href="cart.html"
+      class="nav-item"
+    >
+
+      <span>🛒</span>
+      Cart
+
+    </a>
+
+
+    <a
+      href="orders.html"
+      class="nav-item"
+    >
+
+      <span>📦</span>
+      Orders
+
+    </a>
+
+
+    <a
+      href="profile.html"
+      class="nav-item"
+    >
+
+      <span>👤</span>
+      Profile
+
+    </a>
+
+
+  </nav>
+
+
+  <!-- ================= JAVASCRIPT ================= -->
+
+  <script>
+
+
+    /* ================= CART ================= */
+
+    function getCart() {
+
+      try {
+
+        return JSON.parse(
+          localStorage.getItem("nrCart")
+        ) || [];
+
+      } catch (error) {
+
+        return [];
+
+      }
+
+    }
+
+
+    function saveCart(cart) {
+
+      localStorage.setItem(
+        "nrCart",
+        JSON.stringify(cart)
+      );
+
+    }
+
+
+    /* ================= ADD TO CART ================= */
+
+    function addToCart(name, price) {
+
+      let cart = getCart();
+
+
+      const existing =
+        cart.find(item => item.name === name);
+
+
+      if (existing) {
+
+        existing.quantity =
+          Number(existing.quantity || 0) + 1;
+
+      } else {
+
+        cart.push({
+
+          id: Date.now(),
+
+          name: name,
+
+          price: Number(price),
+
+          quantity: 1
+
+        });
+
+      }
+
+
+      saveCart(cart);
+
+
+      updateCartCount();
+
+
+      alert(
+        name + " Cart में add हो गया।"
+      );
+
+    }
+
+
+    /* ================= CART COUNT ================= */
+
+    function updateCartCount() {
+
+      const cart = getCart();
+
+
+      const count =
+        cart.reduce(
+          (total, item) =>
+            total + (Number(item.quantity) || 0),
+          0
+        );
+
+
+      const button =
+        document.getElementById("cartButton");
+
+
+      button.textContent =
+        "🛒 Cart (" + count + ")";
+
+    }
+
+
+    /* ================= SEARCH ================= */
+
+    function searchProducts() {
+
+      const search =
+        document
+          .getElementById("searchInput")
+          .value
+          .toLowerCase()
+          .trim();
+
+
+      const products =
+        document.querySelectorAll(".product");
+
+
+      let found = 0;
+
+
+      products.forEach(product => {
+
+        const name =
+          product
+            .getAttribute("data-name")
+            .toLowerCase();
+
+
+        if (
+          search === "" ||
+          name.includes(search)
+        ) {
+
+          product.style.display = "";
+
+          found++;
+
+        } else {
+
+          product.style.display = "none";
+
+        }
+
+      });
+
+
+      const noResult =
+        document.getElementById("noResult");
+
+
+      noResult.style.display =
+        found === 0
+          ? "block"
+          : "none";
+
+    }
+
+
+    /* ================= CUSTOMER NOTIFICATIONS ================= */
+
+    let notificationChannel = null;
+
+    function getCustomerMobile(){
+      return String(localStorage.getItem("loginMobile") || "").trim();
+    }
+
+    async function updateNotificationBadge(){
+      const badge = document.getElementById("notificationBadge");
+      if(!badge || !window.nrSupabase) return;
+
+      const mobile = getCustomerMobile();
+      if(!mobile){ badge.style.display = "none"; return; }
+
+      try{
+        const { data, error } = await window.nrSupabase.rpc(
+          "get_customer_notifications",
+          { p_customer_mobile: mobile }
+        );
+        if(error) throw error;
+
+        const unread = (data || []).filter(n => !n.is_read).length;
+        if(unread > 0){
+          badge.textContent = unread > 99 ? "99+" : unread;
+          badge.style.display = "flex";
+        }else{
+          badge.style.display = "none";
+        }
+      }catch(error){
+        console.warn("Notification badge error:", error);
+      }
+    }
+
+    function startNotificationRealtime(){
+      if(!window.nrSupabase || notificationChannel) return;
+
+      const mobile = getCustomerMobile();
+      if(!mobile) return;
+
+      notificationChannel = window.nrSupabase
+        .channel("nr-customer-home-notifications")
+        .on(
+          "postgres_changes",
+          {
+            event:"*",
+            schema:"public",
+            table:"customer_notifications",
+            filter:`customer_mobile=eq.${mobile}`
+          },
+          () => updateNotificationBadge()
+        )
+        .subscribe();
+    }
+
+    updateNotificationBadge();
+    startNotificationRealtime();
+
+    /* ================= PAGE LOAD ================= */
+
+    updateCartCount();
+
+
+  </script>
+
+
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Help & Support - NR Kirana Khandwa</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6f8;
+            color: #222;
+            padding-bottom: 80px;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back {
+            text-decoration: none;
+            color: #222;
+            font-size: 27px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        /* WELCOME */
+        .welcome {
+            background: #0b8f3c;
+            color: white;
+            border-radius: 16px;
+            padding: 22px 18px;
+            margin-bottom: 18px;
+        }
+
+        .welcome h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* SUPPORT GRID */
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .support-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+            text-decoration: none;
+            color: #222;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+        }
+
+        .support-card .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .support-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .support-card p {
+            color: #777;
+            font-size: 12px;
+        }
+
+        /* SECTION TITLE */
+        .section-title {
+            font-size: 20px;
+            margin: 20px 0 12px;
+        }
+
+        /* FAQ */
+        .faq {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            border: none;
+            background: white;
+            padding: 16px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arrow {
+            font-size: 17px;
+            transition: 0.2s;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 16px 16px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .faq.active .faq-answer {
+            display: block;
+        }
+
+        .faq.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        /* ORDER HELP */
+        .order-help {
+            background: white;
+            padding: 18px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+            margin-top: 20px;
+        }
+
+        .order-help h2 {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .order-help p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .order-btn {
+            display: block;
+            text-align: center;
+            background: #0b8f3c;
+            color: white;
+            text-decoration: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* CONTACT */
+        .contact-box {
+            background: white;
+            padding: 18px;
+            border-radius: 15px;
+            margin-top: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .contact-icon {
+            font-size: 26px;
+        }
+
+        .contact-text strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .contact-text span {
+            color: #777;
+            font-size: 13px;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 65px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #666;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .nav-item .icon {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+
+        .nav-item.active {
+            color: #0b8f3c;
+            font-weight: bold;
+        }
+
+        /* MOBILE */
+        @media (max-width: 400px) {
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .support-card {
+                padding: 15px 8px;
+            }
+
+            .support-card .icon {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <a href="profile.html" class="back">
+            ←
+        </a>
+
+        <h1>
+            ❓ Help & Support
+        </h1>
+
+    </div>
+
+
+    <div class="container">
+
+        <!-- WELCOME -->
+        <div class="welcome">
+
+            <h2>
+                👋 हम आपकी मदद के लिए हैं
+            </h2>
+
+            <p>
+                NR Kirana Khandwa से जुड़े किसी भी सवाल,
+                ऑर्डर या पेमेंट की समस्या के लिए नीचे दिए
+                गए विकल्पों का इस्तेमाल करें।
+            </p>
+
+        </div>
+
+
+        <!-- SUPPORT OPTIONS -->
+        <div class="support-grid">
+
+            <!-- CALL -->
+            <a href="tel:7247394842" class="support-card">
+
+                <div class="icon">
+                    📞
+                </div>
+
+                <h3>
+                    Call Us
+                </h3>
+
+                <p>
+                    7247394842
+                </p>
+
+            </a>
+
+
+            <!-- WHATSAPP -->
+            <a href="https://wa.me/917247394842"
+               target="_blank"
+               class="support-card">
+
+                <div class="icon">
+                    💬
+                </div>
+
+                <h3>
+                    WhatsApp
+                </h3>
+
+                <p>
+                    हमें मैसेज करें
+                </p>
+
+            </a>
+
+
+            <!-- ORDERS -->
+            <a href="orders.html" class="support-card">
+
+                <div class="icon">
+                    📦
+                </div>
+
+                <h3>
+                    My Orders
+                </h3>
+
+                <p>
+                    अपने ऑर्डर देखें
+                </p>
+
+            </a>
+
+
+            <!-- TRACK -->
+            <a href="order-tracking.html" class="support-card">
+
+                <div class="icon">
+                    🚚
+                </div>
+
+                <h3>
+                    Track Order
+                </h3>
+
+                <p>
+                    ऑर्डर ट्रैक करें
+                </p>
+
+            </a>
+
+        </div>
+
+
+        <!-- FAQ -->
+        <h2 class="section-title">
+            ❓ Frequently Asked Questions
+        </h2>
+
+
+        <!-- FAQ 1 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    मैं ऑर्डर कैसे कर सकता हूँ?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                Home या Categories में जाकर अपनी पसंद के
+                products चुनें। उन्हें Cart में जोड़ें,
+                Address भरें और Payment Method चुनकर
+                Order Place करें।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 2 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    क्या एक ऑर्डर में कई सामान ले सकते हैं?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                हाँ। आप एक ही ऑर्डर में अलग-अलग products
+                और उनकी अलग-अलग quantity जोड़ सकते हैं।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 3 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    क्या Cash on Delivery उपलब्ध है?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                हाँ, Cash on Delivery उपलब्ध है।
+                Order करते समय Payment Page पर COD
+                option चुन सकते हैं।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 4 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    मेरा Order कहाँ है?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                My Orders में जाकर अपने Order को चुनें
+                और Track Order पर क्लिक करें। वहाँ आपको
+                Order Placed, Accepted, Packing,
+                Out for Delivery और Delivered जैसे
+                status दिखाई देंगे।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 5 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    क्या Coupon Code इस्तेमाल कर सकते हैं?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                हाँ। Offers Page पर उपलब्ध Coupon Code को
+                Payment Page पर Apply करके eligible order
+                पर discount प्राप्त कर सकते हैं।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 6 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    Order Cancel कैसे करें?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                Order cancellation की सुविधा Order Status
+                और दुकान की cancellation policy पर निर्भर
+                करेगी। सहायता के लिए Customer Support से
+                संपर्क करें।
+
+            </div>
+
+        </div>
+
+
+        <!-- FAQ 7 -->
+        <div class="faq">
+
+            <button class="faq-question"
+                    onclick="toggleFAQ(this)">
+
+                <span>
+                    Payment में समस्या हो तो क्या करें?
+                </span>
+
+                <span class="arrow">
+                    ▼
+                </span>
+
+            </button>
+
+            <div class="faq-answer">
+
+                अगर UPI या Card Payment में समस्या आती है,
+                तो दोबारा payment करने से पहले Order Status
+                जरूर check करें। जरूरत पड़ने पर Support से
+                संपर्क करें।
+
+            </div>
+
+        </div>
+
+
+        <!-- ORDER HELP -->
+        <div class="order-help">
+
+            <h2>
+                📦 Order से जुड़ी मदद चाहिए?
+            </h2>
+
+            <p>
+                अपने पुराने Orders देखें और जिस Order में
+                समस्या है उसकी जानकारी लेकर Support से
+                संपर्क करें।
+            </p>
+
+            <a href="orders.html" class="order-btn">
+                📋 My Orders देखें
+            </a>
+
+        </div>
+
+
+        <!-- CONTACT -->
+        <div class="contact-box">
+
+            <h2 class="section-title" style="margin-top:0;">
+                📞 Contact Support
+            </h2>
+
+
+            <!-- PHONE -->
+            <div class="contact-item">
+
+                <div class="contact-icon">
+                    📞
+                </div>
+
+                <div class="contact-text">
+
+                    <strong>
+                        Customer Care
+                    </strong>
+
+                    <span>
+                        7247394842
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- WHATSAPP -->
+            <a href="https://wa.me/917247394842"
+               target="_blank"
+               style="text-decoration:none;color:inherit;">
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        💬
+                    </div>
+
+                    <div class="contact-text">
+
+                        <strong>
+                            WhatsApp Support
+                        </strong>
+
+                        <span>
+                            WhatsApp पर संपर्क करें
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- LOCATION -->
+            <div class="contact-item">
+
+                <div class="contact-icon">
+                    📍
+                </div>
+
+                <div class="contact-text">
+
+                    <strong>
+                        Service Area
+                    </strong>
+
+                    <span>
+                        Khandwa, Madhya Pradesh
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+
+        <a href="home.html" class="nav-item">
+            <span class="icon">🏠</span>
+            Home
+        </a>
+
+        <a href="categories.html" class="nav-item">
+            <span class="icon">📂</span>
+            Categories
+        </a>
+
+        <a href="cart.html" class="nav-item">
+            <span class="icon">🛒</span>
+            Cart
+        </a>
+
+        <a href="orders.html" class="nav-item">
+            <span class="icon">📦</span>
+            Orders
+        </a>
+
+        <a href="profile.html" class="nav-item active">
+            <span class="icon">👤</span>
+            Profile
+        </a>
+
+    </div>
+
+
+    <script>
+
+        // FAQ OPEN / CLOSE
+        function toggleFAQ(button) {
+
+            const faq = button.parentElement;
+
+            const allFAQs =
+                document.querySelectorAll(".faq");
+
+            // बाकी FAQ बंद करें
+            allFAQs.forEach(function(item) {
+
+                if (item !== faq) {
+                    item.classList.remove("active");
+                }
+
+            });
+
+            // Current FAQ toggle करें
+            faq.classList.toggle("active");
+
+        }
+
+    </script>
+
+</body>
+</html>

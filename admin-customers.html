@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Customers - NR Kirana Khandwa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#eafff1,#f4f7f5 45%,#e9eeeb);color:#14201a;min-height:100vh}
+.container{max-width:1150px;margin:auto;padding:22px}.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}.back{padding:12px 16px;border:0;border-radius:15px;background:#fff;box-shadow:8px 8px 18px #d8dedb,-5px -5px 12px #fff;cursor:pointer;font-weight:900}.brand{font-size:24px;font-weight:950}.sub{font-size:12px;color:#69756f;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.stat{background:rgba(255,255,255,.9);border-radius:22px;padding:18px;box-shadow:14px 14px 30px rgba(20,50,35,.10),-7px -7px 18px #fff}.stat b{font-size:27px;display:block}.stat span{font-size:12px;color:#68736d}
+.toolbar{display:flex;gap:10px;margin-bottom:15px}.toolbar input,.toolbar select{flex:1;border:1px solid #dce6df;background:#fff;border-radius:15px;padding:13px;outline:none}.toolbar button{border:0;border-radius:15px;padding:12px 17px;background:#0b8f3c;color:white;font-weight:900;cursor:pointer;box-shadow:0 9px 18px rgba(11,143,60,.2)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{background:rgba(255,255,255,.92);border-radius:22px;padding:18px;box-shadow:12px 12px 28px rgba(20,50,35,.10),-6px -6px 16px #fff}.head{display:flex;justify-content:space-between;gap:10px}.name{font-size:18px;font-weight:950}.mobile{font-size:13px;color:#66716b;margin-top:5px}.pill{font-size:11px;background:#e9f8ee;color:#13743a;padding:6px 9px;border-radius:99px;font-weight:900;height:max-content}.row{display:flex;justify-content:space-between;border-top:1px solid #edf1ef;padding-top:10px;margin-top:12px;font-size:13px}.row span{color:#69756f}.actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1;padding:10px;border:1px solid #dbe6df;border-radius:13px;background:#f7faf8;font-weight:800;cursor:pointer}.empty{text-align:center;padding:45px;color:#6d7872}.loading{text-align:center;padding:50px;color:#68736d}.error{background:#ffecec;color:#b42318;padding:12px;border-radius:13px;margin-bottom:12px;display:none}
+@media(max-width:750px){.grid,.cards{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}.toolbar input,.toolbar select{min-width:45%}.container{padding:14px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="top"><button class="back" onclick="location.href='admin.html'">🏠 Dashboard</button><div><div class="brand">👥 Customers</div><div class="sub">NR Kirana Khandwa • Customer Management</div></div></div>
+<div id="error" class="error"></div>
+<div class="grid">
+<div class="stat"><b id="total">0</b><span>Total Customers</span></div>
+<div class="stat"><b id="orders">0</b><span>Total Orders</span></div>
+<div class="stat"><b id="sales">₹0</b><span>Total Sales</span></div>
+</div>
+<div class="toolbar"><input id="search" placeholder="🔎 Name या mobile से search..." oninput="render()"><select id="filter" onchange="render()"><option value="all">सभी Customers</option><option value="ordered">Order वाले</option><option value="new">No Order</option></select><button onclick="loadData()">↻ Refresh</button></div>
+<div id="loading" class="loading">⏳ Customers loading...</div>
+<div id="cards" class="cards"></div>
+</div>
+<script>
+const db=window.nrSupabase||window.supabaseClient||null;let customers=[],orders=[];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function showError(t){const e=document.getElementById("error");e.textContent=t;e.style.display="block"}
+async function auth(){
+ if(!db) throw new Error("Supabase config नहीं मिला।");
+ const {data:{session},error}=await db.auth.getSession();if(error||!session) throw new Error("Admin login session नहीं मिला।");
+ const {data:a,error:ae}=await db.from("admin_users").select("id").eq("id",session.user.id).eq("is_active",true).maybeSingle();
+ if(ae||!a) throw new Error("Admin access verify नहीं हुआ।");
+}
+async function loadData(){
+ document.getElementById("loading").style.display="block";document.getElementById("cards").innerHTML="";document.getElementById("error").style.display="none";
+ try{
+  await auth();
+  const [c,o]=await Promise.all([
+   db.from("customer_profiles").select("id,mobile,full_name,email,address,created_at,updated_at").order("created_at",{ascending:false}),
+   db.from("orders").select("id,order_number,customer_name,customer_mobile,total,status,created_at").order("created_at",{ascending:false})
+  ]);
+  if(c.error) throw c.error;if(o.error) throw o.error;
+  customers=c.data||[];orders=o.data||[];
+  document.getElementById("total").textContent=customers.length;
+  document.getElementById("orders").textContent=orders.length;
+  document.getElementById("sales").textContent="₹"+orders.reduce((s,x)=>s+Number(x.total||0),0).toLocaleString("en-IN");
+  document.getElementById("loading").style.display="none";render();
+ }catch(e){console.error(e);document.getElementById("loading").style.display="none";showError(e.message||"Data load नहीं हुआ।")}
+}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim(),f=document.getElementById("filter").value;
+ const rows=customers.map(c=>({...c,count:orders.filter(o=>o.customer_mobile===c.mobile),last:orders.find(o=>o.customer_mobile===c.mobile)}))
+ .filter(c=>(!q||`${c.full_name||""} ${c.mobile||""} ${c.email||""}`.toLowerCase().includes(q))&&(f==="all"||(f==="ordered"?c.count.length:f==="new"?!c.count.length:true)));
+ const box=document.getElementById("cards");
+ if(!rows.length){box.innerHTML='<div class="empty">👥 कोई customer नहीं मिला।</div>';return}
+ box.innerHTML=rows.map(c=>`<div class="card">
+ <div class="head"><div><div class="name">${esc(c.full_name||"Customer")}</div><div class="mobile">📱 +91 ${esc(c.mobile||"—")}</div></div><span class="pill">${c.count.length} Orders</span></div>
+ <div class="row"><span>Email</span><b>${esc(c.email||"Not added")}</b></div>
+ <div class="row"><span>Last Order</span><b>${c.last?esc(c.last.order_number):"—"}</b></div>
+ <div class="row"><span>Last Status</span><b>${c.last?esc(c.last.status||"Order Placed"):"No Order"}</b></div>
+ <div class="actions"><button onclick="callCustomer('${esc(c.mobile||"")}')">📞 Call</button><button onclick="viewOrders('${encodeURIComponent(c.mobile||"")}')">📦 Orders</button></div>
+ </div>`).join("");
+}
+function callCustomer(m){if(m)location.href="tel:+91"+m}
+function viewOrders(m){localStorage.setItem("nrAdminCustomerMobile",decodeURIComponent(m));location.href="admin-orders.html"}
+loadData();setInterval(loadData,30000);
+</script>
+</body></html>

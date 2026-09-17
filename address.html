@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Address - NR Kirana Khandwa</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6f8;
+            padding-bottom: 30px;
+        }
+
+        /* Header */
+        .header {
+            background: #0b8f3c;
+            color: white;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            font-size: 28px;
+        }
+
+        .header h2 {
+            font-size: 20px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 18px;
+        }
+
+        .title {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: #222;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        /* Input */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #333;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #0b8f3c;
+        }
+
+        textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        /* Address Type */
+        .address-types {
+            display: flex;
+            gap: 10px;
+        }
+
+        .type-option {
+            flex: 1;
+        }
+
+        .type-option input {
+            display: none;
+        }
+
+        .type-label {
+            display: block;
+            text-align: center;
+            padding: 12px 5px;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .type-option input:checked + .type-label {
+            border: 2px solid #0b8f3c;
+            background: #effaf3;
+            color: #0b8f3c;
+            font-weight: bold;
+        }
+
+        /* Order Summary */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .grand-total {
+            border-top: 1px solid #ddd;
+            padding-top: 12px;
+            margin-top: 12px;
+            font-size: 19px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .free {
+            color: #0b8f3c;
+            font-weight: bold;
+        }
+
+        /* Continue Button */
+        .continue-btn {
+            width: 100%;
+            padding: 15px;
+            background: #0b8f3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .continue-btn:hover {
+            background: #087a33;
+        }
+
+        /* Location */
+        .location-btn {
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #0b8f3c;
+            color: #0b8f3c;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* Error */
+        .error {
+            color: #e53935;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+
+        <div class="header-top">
+
+            <a href="cart.html" class="back">←</a>
+
+            <h2>📍 Delivery Address</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <h1 class="title">कहाँ पहुँचाना है?</h1>
+
+        <p class="subtitle">
+            अपना सही पता डालें ताकि आपका सामान सही जगह पहुँचे।
+        </p>
+
+
+        <!-- Address Form -->
+        <div class="card">
+
+            <h3>📍 Delivery Details</h3>
+
+
+            <!-- Name -->
+            <div class="form-group">
+
+                <label>पूरा नाम *</label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="अपना पूरा नाम लिखें"
+                >
+
+                <div class="error" id="nameError">
+                    नाम डालना जरूरी है।
+                </div>
+
+            </div>
+
+
+            <!-- Mobile -->
+            <div class="form-group">
+
+                <label>मोबाइल नंबर *</label>
+
+                <input
+                    type="tel"
+                    id="mobile"
+                    maxlength="10"
+                    placeholder="10 अंकों का मोबाइल नंबर"
+                >
+
+                <div class="error" id="mobileError">
+                    सही 10 अंकों का मोबाइल नंबर डालें।
+                </div>
+
+            </div>
+
+
+            <!-- House -->
+            <div class="form-group">
+
+                <label>मकान / दुकान नंबर *</label>
+
+                <input
+                    type="text"
+                    id="house"
+                    placeholder="जैसे: मकान नं. 123"
+                >
+
+                <div class="error" id="houseError">
+                    मकान या दुकान नंबर डालें।
+                </div>
+
+            </div>
+
+
+            <!-- Area -->
+            <div class="form-group">
+
+                <label>Area / मोहल्ला *</label>
+
+                <input
+                    type="text"
+                    id="area"
+                    placeholder="जैसे: रामनगर"
+                >
+
+                <div class="error" id="areaError">
+                    Area / मोहल्ला डालें।
+                </div>
+
+            </div>
+
+
+            <!-- City -->
+            <div class="form-group">
+
+                <label>शहर *</label>
+
+                <input
+                    type="text"
+                    id="city"
+                    value="Khandwa"
+                    placeholder="शहर"
+                >
+
+            </div>
+
+
+            <!-- Pincode -->
+            <div class="form-group">
+
+                <label>पिनकोड *</label>
+
+                <input
+                    type="tel"
+                    id="pincode"
+                    maxlength="6"
+                    placeholder="6 अंकों का पिनकोड"
+                >
+
+                <div class="error" id="pincodeError">
+                    सही 6 अंकों का पिनकोड डालें।
+                </div>
+
+            </div>
+
+
+            <!-- Landmark -->
+            <div class="form-group">
+
+                <label>Landmark</label>
+
+                <input
+                    type="text"
+                    id="landmark"
+                    placeholder="पास में कोई पहचान की जगह"
+                >
+
+            </div>
+
+
+            <!-- Full Address -->
+            <div class="form-group">
+
+                <label>पूरा पता / निर्देश *</label>
+
+                <textarea
+                    id="address"
+                    placeholder="अपना पूरा पता और delivery की जानकारी लिखें..."
+                ></textarea>
+
+                <div class="error" id="addressError">
+                    पूरा पता डालना जरूरी है।
+                </div>
+
+            </div>
+
+
+            <!-- Address Type -->
+            <div class="form-group">
+
+                <label>पते का प्रकार</label>
+
+                <div class="address-types">
+
+                    <div class="type-option">
+
+                        <input
+                            type="radio"
+                            id="home"
+                            name="addressType"
+                            value="Home"
+                            checked
+                        >
+
+                        <label
+                            for="home"
+                            class="type-label"
+                        >
+                            🏠 Home
+                        </label>
+
+                    </div>
+
+
+                    <div class="type-option">
+
+                        <input
+                            type="radio"
+                            id="work"
+                            name="addressType"
+                            value="Work"
+                        >
+
+                        <label
+                            for="work"
+                            class="type-label"
+                        >
+                            🏢 Work
+                        </label>
+
+                    </div>
+
+
+                    <div class="type-option">
+
+                        <input
+                            type="radio"
+                            id="other"
+                            name="addressType"
+                            value="Other"
+                        >
+
+                        <label
+                            for="other"
+                            class="type-label"
+                        >
+                            📍 Other
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Order Summary -->
+        <div class="card">
+
+            <h3>🧾 Order Summary</h3>
+
+            <div class="summary-row">
+
+                <span>Item Total</span>
+
+                <span id="itemTotal">
+                    ₹0
+                </span>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Delivery Charge</span>
+
+                <span class="free">
+                    FREE
+                </span>
+
+            </div>
+
+
+            <div class="summary-row grand-total">
+
+                <span>Grand Total</span>
+
+                <span id="grandTotal">
+                    ₹0
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Continue -->
+        <button
+            class="continue-btn"
+            onclick="saveAddress()"
+        >
+            Payment पर जाएँ →
+        </button>
+
+    </div>
+
+
+    <script>
+
+        // Cart
+        let cart =
+            JSON.parse(localStorage.getItem("nrCart")) || [];
+
+
+        // Check Cart
+        if (cart.length === 0) {
+
+            alert("आपका Cart खाली है।");
+
+            window.location.href = "home.html";
+
+        }
+
+
+        // Calculate Total
+        function calculateTotal() {
+
+            let total = 0;
+
+            cart.forEach(item => {
+
+                total +=
+                    Number(item.price) *
+                    Number(item.quantity);
+
+            });
+
+            document.getElementById("itemTotal")
+                .innerText = "₹" + total;
+
+            document.getElementById("grandTotal")
+                .innerText = "₹" + total;
+
+        }
+
+
+        // Save Address
+        function saveAddress() {
+
+            // Hide previous errors
+            document.querySelectorAll(".error")
+                .forEach(error => {
+                    error.style.display = "none";
+                });
+
+
+            const name =
+                document.getElementById("name").value.trim();
+
+            const mobile =
+                document.getElementById("mobile").value.trim();
+
+            const house =
+                document.getElementById("house").value.trim();
+
+            const area =
+                document.getElementById("area").value.trim();
+
+            const city =
+                document.getElementById("city").value.trim();
+
+            const pincode =
+                document.getElementById("pincode").value.trim();
+
+            const landmark =
+                document.getElementById("landmark").value.trim();
+
+            const address =
+                document.getElementById("address").value.trim();
+
+
+            let valid = true;
+
+
+            // Name
+            if (name === "") {
+
+                document.getElementById("nameError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            // Mobile
+            if (!/^[0-9]{10}$/.test(mobile)) {
+
+                document.getElementById("mobileError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            // House
+            if (house === "") {
+
+                document.getElementById("houseError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            // Area
+            if (area === "") {
+
+                document.getElementById("areaError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            // Pincode
+            if (!/^[0-9]{6}$/.test(pincode)) {
+
+                document.getElementById("pincodeError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            // Address
+            if (address === "") {
+
+                document.getElementById("addressError")
+                    .style.display = "block";
+
+                valid = false;
+
+            }
+
+
+            if (!valid) {
+
+                return;
+
+            }
+
+
+            // Address Type
+            const addressType =
+                document.querySelector(
+                    'input[name="addressType"]:checked'
+                ).value;
+
+
+            // Save Address
+            const deliveryAddress = {
+
+                name: name,
+
+                mobile: mobile,
+
+                house: house,
+
+                area: area,
+
+                city: city,
+
+                pincode: pincode,
+
+                landmark: landmark,
+
+                address: address,
+
+                type: addressType
+
+            };
+
+
+            localStorage.setItem(
+                "nrDeliveryAddress",
+                JSON.stringify(deliveryAddress)
+            );
+
+
+            // Go to Payment
+            window.location.href = "payment.html";
+
+        }
+
+
+        // Load Saved Address
+        function loadSavedAddress() {
+
+            const saved =
+                JSON.parse(
+                    localStorage.getItem("nrDeliveryAddress")
+                );
+
+
+            if (!saved) {
+                return;
+            }
+
+
+            document.getElementById("name").value =
+                saved.name || "";
+
+            document.getElementById("mobile").value =
+                saved.mobile || "";
+
+            document.getElementById("house").value =
+                saved.house || "";
+
+            document.getElementById("area").value =
+                saved.area || "";
+
+            document.getElementById("city").value =
+                saved.city || "Khandwa";
+
+            document.getElementById("pincode").value =
+                saved.pincode || "";
+
+            document.getElementById("landmark").value =
+                saved.landmark || "";
+
+            document.getElementById("address").value =
+                saved.address || "";
+
+
+            if (saved.type) {
+
+                const type =
+                    document.querySelector(
+                        `input[name="addressType"][value="${saved.type}"]`
+                    );
+
+                if (type) {
+                    type.checked = true;
+                }
+
+            }
+
+        }
+
+
+        // Page Load
+        calculateTotal();
+
+        loadSavedAddress();
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Products | NR Kirana Khandwa Admin</title>
+<meta name="theme-color" content="#07111f">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#16a34a;--green2:#22c55e;--blue:#2563eb;--orange:#f59e0b;--red:#ef4444;--dark:#07111f;--text:#0f172a;--muted:#64748b;--bg:#edf3f8}
+body{min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 5%,rgba(34,197,94,.18),transparent 28%),radial-gradient(circle at 92% 8%,rgba(37,99,235,.15),transparent 28%),radial-gradient(circle at 50% 100%,rgba(168,85,247,.10),transparent 30%),var(--bg)}
+.header{position:sticky;top:0;z-index:100;padding:13px 15px;background:rgba(255,255,255,.72);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(15,23,42,.08)}
+.header-inner{max-width:1450px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:50px;height:50px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(145deg,#fff,#d9e4ef);box-shadow:8px 8px 18px rgba(15,23,42,.15),-7px -7px 15px white;font-size:26px}
+.brand h1{font-size:18px;font-weight:950}.brand p{color:var(--muted);font-size:10px;margin-top:3px}
+.header-actions{display:flex;gap:8px}.header-btn,.close{width:43px;height:43px;border:0;border-radius:14px;background:linear-gradient(145deg,#fff,#dfe7ef);box-shadow:6px 7px 14px rgba(15,23,42,.11),-5px -5px 12px white;font-size:18px;cursor:pointer}
+.container{width:min(1450px,calc(100% - 25px));margin:26px auto 60px}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}.page-head h2{font-size:30px;font-weight:950}.page-head p{color:var(--muted);font-size:12px;margin-top:4px}
+.primary{border:0;padding:13px 18px;border-radius:15px;color:#fff;background:linear-gradient(145deg,#22c55e,#15803d);font-weight:950;box-shadow:0 10px 20px rgba(22,163,74,.25),inset 0 2px 1px rgba(255,255,255,.3);cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}.stat{padding:18px;border-radius:23px;background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(231,237,243,.78));border:1px solid rgba(255,255,255,.95);box-shadow:11px 13px 28px rgba(15,23,42,.10),-8px -8px 19px white,inset 0 1px 1px white;transition:.2s}.stat:hover{transform:translateY(-5px)}.stat-icon{font-size:25px;margin-bottom:10px}.stat h3{font-size:27px;font-weight:950}.stat p{color:var(--muted);font-size:11px;margin-top:4px;font-weight:700}
+.filter-card{padding:17px;border-radius:23px;background:rgba(255,255,255,.78);backdrop-filter:blur(18px);box-shadow:11px 13px 28px rgba(15,23,42,.08),-8px -8px 19px white;margin-bottom:22px}.filters{display:grid;grid-template-columns:1.7fr 1fr 1fr auto;gap:10px}
+.input,.select{width:100%;padding:13px 14px;border:1px solid #dbe4ed;border-radius:14px;background:#f8fafc;outline:none;box-shadow:inset 3px 3px 7px rgba(15,23,42,.04),inset -3px -3px 7px white}.input:focus,.select:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.10)}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.product-card{position:relative;padding:15px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(235,241,246,.84));border:1px solid rgba(255,255,255,.95);box-shadow:12px 15px 31px rgba(15,23,42,.10),-8px -8px 20px white,inset 0 1px 1px white;transition:.22s}.product-card:hover{transform:translateY(-5px);box-shadow:16px 20px 38px rgba(15,23,42,.14),-8px -8px 20px white}
+.image-wrap{height:175px;border-radius:18px;background:linear-gradient(145deg,#f8fafc,#e2e8f0);display:grid;place-items:center;overflow:hidden;box-shadow:inset 4px 4px 10px rgba(15,23,42,.05),inset -4px -4px 10px white;margin-bottom:13px}.image-wrap img{width:100%;height:100%;object-fit:contain}.fallback{font-size:60px}.badge{position:absolute;top:12px;left:12px;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:950;background:#dcfce7;color:#166534}.badge.off{background:#fee2e2;color:#991b1b}.name{font-size:14px;font-weight:950;min-height:36px}.desc{font-size:10px;color:var(--muted);line-height:1.4;min-height:29px;margin-top:4px}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.price{font-size:18px;font-weight:950}.mrp{text-decoration:line-through;color:#94a3b8;font-size:10px;margin-left:5px}.stock{font-size:10px;font-weight:900;color:#166534}.stock.low{color:#b45309}.stock.out{color:#dc2626}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.edit,.delete{border:0;padding:10px;border-radius:12px;font-weight:900;cursor:pointer}.edit{background:#dbeafe;color:#1d4ed8}.delete{background:#fee2e2;color:#b91c1c}
+.loading,.empty{padding:65px 20px;text-align:center;color:var(--muted);grid-column:1/-1}.empty-icon{font-size:55px;margin-bottom:10px}.spinner{width:38px;height:38px;margin:0 auto 12px;border:4px solid #cbd5e1;border-top-color:#16a34a;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:15px;background:rgba(2,6,23,.63);backdrop-filter:blur(12px)}.overlay.show{display:flex}.modal{width:min(720px,100%);max-height:94vh;overflow:auto;padding:23px;border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(235,241,247,.97));box-shadow:25px 30px 70px rgba(0,0,0,.30),-10px -10px 25px rgba(255,255,255,.15)}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-head h3{font-size:21px;font-weight:950}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}.field label{display:block;font-size:11px;font-weight:900;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:12px;border:1px solid #dbe3eb;border-radius:13px;background:#f8fafc;outline:none}.field textarea{min-height:82px;resize:vertical}.check{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;margin-top:5px}.check input{width:17px;height:17px}
+.modal-actions{display:flex;gap:9px;margin-top:18px}.save{flex:1;border:0;padding:13px;border-radius:14px;color:white;background:linear-gradient(145deg,#22c55e,#15803d);font-weight:950;cursor:pointer}.cancel{border:0;padding:13px 18px;border-radius:14px;background:#e2e8f0;font-weight:900;cursor:pointer}.upload-note{font-size:9px;color:var(--muted);margin-top:5px}.preview{width:90px;height:90px;border-radius:15px;object-fit:contain;background:#f1f5f9;margin-top:8px;display:none}
+.toast{position:fixed;left:50%;bottom:20px;z-index:1000;width:min(430px,calc(100% - 25px));padding:14px 16px;border-radius:15px;color:white;background:#0f172a;text-align:center;font-size:12px;font-weight:800;transform:translate(-50%,120px);opacity:0;transition:.3s}.toast.show{transform:translate(-50%,0);opacity:1}.toast.success{background:#166534}.toast.error{background:#991b1b}
+@media(max-width:1100px){.products{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.container{width:calc(100% - 15px);margin-top:18px}.page-head{align-items:flex-start;flex-direction:column}.filters{grid-template-columns:1fr}.products{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+@media(max-width:430px){.products{grid-template-columns:1fr}.brand h1{font-size:15px}}
+</style>
+</head>
+<body>
+<header class="header"><div class="header-inner">
+<div class="brand"><div class="logo">🛒</div><div><h1>NR Kirana Khandwa</h1><p>Admin • Product Management</p></div></div>
+<div class="header-actions"><button class="header-btn" onclick="goDashboard()">🏠</button><button class="header-btn" onclick="logoutAdmin()">🚪</button></div>
+</div></header>
+
+<main class="container">
+<section class="page-head"><div><h2>🛍️ Products</h2><p>Products add, edit, stock और image manage करें</p></div><button class="primary" onclick="openAdd()">＋ Add Product</button></section>
+
+<section class="stats">
+<div class="stat"><div class="stat-icon">🛍️</div><h3 id="total">0</h3><p>Total Products</p></div>
+<div class="stat"><div class="stat-icon">✅</div><h3 id="active">0</h3><p>Active Products</p></div>
+<div class="stat"><div class="stat-icon">⚠️</div><h3 id="low">0</h3><p>Low Stock</p></div>
+<div class="stat"><div class="stat-icon">❌</div><h3 id="out">0</h3><p>Out of Stock</p></div>
+</section>
+
+<section class="filter-card"><div class="filters">
+<input id="search" class="input" placeholder="🔍 Product name search...">
+<select id="category" class="select"><option value="">सभी Categories</option><option value="kirana">Kirana</option><option value="dairy">Dairy</option><option value="snacks">Snacks</option><option value="drinks">Drinks</option><option value="personal-care">Personal Care</option><option value="household">Household</option><option value="baby-care">Baby Care</option><option value="home-kitchen">Home & Kitchen</option><option value="spices">Spices</option><option value="pooja">Pooja</option></select>
+<select id="stock" class="select"><option value="">All Stock</option><option value="active">In Stock</option><option value="low">Low Stock</option><option value="out">Out of Stock</option></select>
+<button class="header-btn" style="width:auto;padding:0 16px" onclick="loadProducts()">↻ Refresh</button>
+</div></section>
+
+<section id="products" class="products"><div class="loading"><div class="spinner"></div>Products load हो रहे हैं...</div></section>
+</main>
+
+<div id="overlay" class="overlay"><div class="modal">
+<div class="modal-head"><h3 id="modalTitle">＋ Add Product</h3><button class="close" onclick="closeModal()">✕</button></div>
+<form id="productForm">
+<div class="form-grid">
+<div class="field"><label>Product Name *</label><input id="name" required placeholder="Aashirvaad Atta 5 Kg"></div>
+<div class="field"><label>Category *</label><select id="cat" required><option value="">Select</option><option value="kirana">Kirana</option><option value="dairy">Dairy</option><option value="snacks">Snacks</option><option value="drinks">Drinks</option><option value="personal-care">Personal Care</option><option value="household">Household</option><option value="baby-care">Baby Care</option><option value="home-kitchen">Home & Kitchen</option><option value="spices">Spices</option><option value="pooja">Pooja</option></select></div>
+<div class="field"><label>Selling Price *</label><input id="price" type="number" min="0" step="0.01" required placeholder="245"></div>
+<div class="field"><label>MRP</label><input id="mrp" type="number" min="0" step="0.01" placeholder="270"></div>
+<div class="field"><label>Stock Quantity *</label><input id="stockQty" type="number" min="0" required placeholder="25"></div>
+<div class="field"><label>Unit</label><input id="unit" placeholder="5 Kg / 1 L / 1 Pack"></div>
+<div class="field"><label>Icon / Emoji</label><input id="icon" placeholder="🌾"></div>
+<div class="field"><label>Product Image</label><input id="image" type="file" accept="image/jpeg,image/png,image/webp"><div class="upload-note">JPG/PNG/WebP • max 5MB</div><img id="preview" class="preview"></div>
+<div class="field full"><label>Description</label><textarea id="desc" placeholder="Product की short description..."></textarea></div>
+<div class="field full"><label class="check"><input id="isActive" type="checkbox" checked> Product Customer App में active दिखे</label></div>
+</div>
+<div class="modal-actions"><button type="button" class="cancel" onclick="closeModal()">Cancel</button><button class="save" id="saveBtn">💾 Save Product</button></div>
+</form>
+</div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const db=window.nrSupabase;
+let products=[], editingId=null;
+
+document.addEventListener("DOMContentLoaded",init);
+
+async function init(){
+ if(!db){toast("Supabase connection नहीं मिली।","error");return}
+ if(!(await checkAdmin()))return;
+ await loadProducts();
+ setupRealtime();
+}
+
+async function checkAdmin(){
+ const {data:{session},error}=await db.auth.getSession();
+ if(error||!session){location.href="admin-login.html";return false}
+ const {data:admin,error:ae}=await db.from("admin_users").select("id,email,is_active").eq("id",session.user.id).eq("is_active",true).maybeSingle();
+ if(ae){toast("Admin verification error: "+ae.message,"error");await db.auth.signOut();setTimeout(()=>location.href="admin-login.html",1000);return false}
+ if(!admin){await db.auth.signOut();location.href="admin-login.html";return false}
+ return true;
+}
+
+async function loadProducts(){
+ const box=document.getElementById("products");
+ box.innerHTML='<div class="loading"><div class="spinner"></div>Products load हो रहे हैं...</div>';
+ const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});
+ if(error){box.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>Products load नहीं हुए</h3><p style="margin-top:7px">'+escapeHtml(error.message)+'</p></div>';return}
+ products=data||[];updateStats();render();
+}
+
+function updateStats(){
+ document.getElementById("total").textContent=products.length;
+ document.getElementById("active").textContent=products.filter(p=>p.is_active).length;
+ document.getElementById("low").textContent=products.filter(p=>Number(p.stock)>0&&Number(p.stock)<=5).length;
+ document.getElementById("out").textContent=products.filter(p=>Number(p.stock)<=0).length;
+}
+
+function render(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ const c=document.getElementById("category").value;
+ const s=document.getElementById("stock").value;
+ const list=products.filter(p=>{
+  const match=!q||[p.name,p.description,p.category,p.unit].filter(Boolean).join(" ").toLowerCase().includes(q);
+  const mc=!c||p.category===c;
+  const n=Number(p.stock)||0;
+  const ms=!s||(s==="active"&&n>5)||(s==="low"&&n>0&&n<=5)||(s==="out"&&n<=0);
+  return match&&mc&&ms;
+ });
+ const box=document.getElementById("products");
+ if(!list.length){box.innerHTML='<div class="empty"><div class="empty-icon">🛍️</div><h3>कोई product नहीं मिला</h3><p style="margin-top:7px">ऊपर से search/filter बदलें या नया product add करें।</p></div>';return}
+ box.innerHTML=list.map(card).join("");
+}
+
+function card(p){
+ const stock=Number(p.stock)||0;
+ const badge=p.is_active?"Active":"Inactive";
+ const stockClass=stock<=0?"out":stock<=5?"low":"";
+ const img=p.image_url?'<img src="'+escapeAttr(p.image_url)+'" alt="'+escapeAttr(p.name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">':'';
+ const fallback='<div class="fallback" style="'+(p.image_url?'display:none':'')+'">'+escapeHtml(p.icon||"🛒")+'</div>';
+ return `<article class="product-card">
+ <div class="badge ${p.is_active?'':'off'}">${badge}</div>
+ <div class="image-wrap">${img}${fallback}</div>
+ <div class="name">${escapeHtml(p.name)}</div>
+ <div class="desc">${escapeHtml(p.description||p.unit||"")}</div>
+ <div class="meta"><div><span class="price">₹${Number(p.price||0).toFixed(2)}</span>${p.mrp&&Number(p.mrp)>Number(p.price)?'<span class="mrp">₹'+Number(p.mrp).toFixed(2)+'</span>':''}</div><span class="stock ${stockClass}">${stock<=0?'Out of stock':stock+' in stock'}</span></div>
+ <div class="actions"><button class="edit" onclick="openEdit('${p.id}')">✏️ Edit</button><button class="delete" onclick="deleteProduct('${p.id}')">🗑️ Delete</button></div>
+ </article>`;
+}
+
+function openAdd(){
+ editingId=null;
+ document.getElementById("modalTitle").textContent="＋ Add Product";
+ document.getElementById("productForm").reset();
+ document.getElementById("isActive").checked=true;
+ document.getElementById("preview").style.display="none";
+ document.getElementById("overlay").classList.add("show");
+}
+
+function openEdit(id){
+ const p=products.find(x=>x.id===id);if(!p)return;
+ editingId=id;
+ document.getElementById("modalTitle").textContent="✏️ Edit Product";
+ document.getElementById("name").value=p.name||"";
+ document.getElementById("cat").value=p.category||"";
+ document.getElementById("price").value=p.price??"";
+ document.getElementById("mrp").value=p.mrp??"";
+ document.getElementById("stockQty").value=p.stock??0;
+ document.getElementById("unit").value=p.unit||"";
+ document.getElementById("icon").value=p.icon||"";
+ document.getElementById("desc").value=p.description||"";
+ document.getElementById("isActive").checked=p.is_active!==false;
+ const pr=document.getElementById("preview");if(p.image_url){pr.src=p.image_url;pr.style.display="block"}else pr.style.display="none";
+ document.getElementById("image").value="";
+ document.getElementById("overlay").classList.add("show");
+}
+
+async function saveProduct(e){
+ e.preventDefault();
+ const btn=document.getElementById("saveBtn");btn.disabled=true;btn.textContent="⏳ Saving...";
+ try{
+  const name=document.getElementById("name").value.trim(),category=document.getElementById("cat").value;
+  const price=Number(document.getElementById("price").value),mrpVal=document.getElementById("mrp").value;
+  const stock=Number(document.getElementById("stockQty").value),file=document.getElementById("image").files[0];
+  if(!name||!category||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0)throw new Error("Required fields सही भरें।");
+  if(mrpVal!==""&&Number(mrpVal)<price)throw new Error("MRP selling price से कम नहीं होना चाहिए।");
+  let imageUrl=editingId?(products.find(p=>p.id===editingId)?.image_url||null):null;
+  if(file){
+   if(file.size>5*1024*1024)throw new Error("Image 5MB से बड़ी है।");
+   if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("केवल JPG, PNG या WebP image allowed है।");
+   const path="products/"+crypto.randomUUID()+"."+file.name.split(".").pop().toLowerCase();
+   const {error:ue}=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
+   if(ue)throw new Error("Image upload failed: "+ue.message);
+   imageUrl=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+  }
+  const payload={name,description:document.getElementById("desc").value.trim()||null,price,mrp:mrpVal===""?null:Number(mrpVal),stock,category,unit:document.getElementById("unit").value.trim()||null,image_url:imageUrl,icon:document.getElementById("icon").value.trim()||"🛒",is_active:document.getElementById("isActive").checked};
+  let error;
+  if(editingId){({error}=await db.from("products").update(payload).eq("id",editingId))}else{({error}=await db.from("products").insert(payload))}
+  if(error)throw new Error(error.message);
+  closeModal();toast(editingId?"Product updated ✅":"Product added successfully 🎉","success");await loadProducts();
+ }catch(err){console.error(err);toast(err.message,"error")}
+ finally{btn.disabled=false;btn.textContent="💾 Save Product"}
+}
+
+async function deleteProduct(id){
+ const p=products.find(x=>x.id===id);if(!p)return;
+ if(!confirm(`"${p.name}" को delete करना है?`))return;
+ const {error}=await db.from("products").delete().eq("id",id);
+ if(error){toast("Delete failed: "+error.message,"error");return}
+ toast("Product deleted 🗑️","success");await loadProducts();
+}
+
+function closeModal(){document.getElementById("overlay").classList.remove("show");editingId=null}
+function setupRealtime(){db.channel("admin-products-live").on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>loadProducts()).subscribe()}
+function toast(m,t=""){const e=document.getElementById("toast");e.textContent=m;e.className="toast show "+t;setTimeout(()=>e.className="toast",3200)}
+function goDashboard(){location.href="admin.html"}
+async function logoutAdmin(){if(!confirm("क्या आप Admin logout करना चाहते हैं?"))return;await db.auth.signOut();localStorage.removeItem("nrAdminLoggedIn");localStorage.removeItem("nrAdminEmail");localStorage.removeItem("nrAdminLoginTime");location.href="admin-login.html"}
+function escapeHtml(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function escapeAttr(v){return escapeHtml(v)}
+
+document.getElementById("productForm").addEventListener("submit",saveProduct);
+document.getElementById("search").addEventListener("input",render);
+document.getElementById("category").addEventListener("change",render);
+document.getElementById("stock").addEventListener("change",render);
+document.getElementById("image").addEventListener("change",function(){const f=this.files[0],p=document.getElementById("preview");if(f){p.src=URL.createObjectURL(f);p.style.display="block"}});
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+</script>
+</body>
+</html>

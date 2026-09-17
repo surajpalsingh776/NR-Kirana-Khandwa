@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#07111f">
+<title>Notifications | NR Kirana Khandwa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{min-height:100vh;color:#fff;background:
+radial-gradient(circle at 10% 5%,rgba(34,197,94,.18),transparent 28%),
+radial-gradient(circle at 90% 90%,rgba(59,130,246,.18),transparent 30%),#020617}
+.header{position:sticky;top:0;z-index:10;padding:16px;display:flex;align-items:center;gap:12px;background:rgba(2,6,23,.82);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08)}
+.back{width:42px;height:42px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer}
+.brand{flex:1}.brand h1{font-size:18px;font-weight:900}.brand p{font-size:11px;color:#94a3b8;margin-top:3px}
+.unread-pill{padding:8px 12px;border-radius:999px;background:rgba(239,68,68,.16);border:1px solid rgba(248,113,113,.2);font-size:11px;font-weight:900}
+.wrap{max-width:850px;margin:auto;padding:20px 15px 90px}
+.hero{padding:22px;border-radius:25px;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.08);box-shadow:12px 12px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);margin-bottom:16px}
+.hero h2{font-size:25px;font-weight:950}.hero p{margin-top:7px;color:#94a3b8;font-size:12px}
+.actions{display:flex;gap:10px;margin-top:17px;flex-wrap:wrap}
+.btn{border:0;padding:11px 14px;border-radius:14px;color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);font-weight:800;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 8px 20px rgba(34,197,94,.18)}
+.list{display:flex;flex-direction:column;gap:12px}
+.item{position:relative;padding:17px;border-radius:22px;background:rgba(15,23,42,.76);border:1px solid rgba(255,255,255,.08);box-shadow:9px 9px 24px rgba(0,0,0,.24);transition:.2s}
+.item.unread{border-color:rgba(96,165,250,.32);box-shadow:9px 9px 24px rgba(0,0,0,.24),inset 3px 0 0 #60a5fa}
+.row{display:flex;gap:13px;align-items:flex-start}.icon{width:45px;height:45px;flex:0 0 45px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);font-size:22px}
+.content{flex:1;min-width:0}.top{display:flex;align-items:center;gap:8px;justify-content:space-between}.title{font-size:14px;font-weight:900}.badge{font-size:9px;padding:4px 7px;border-radius:999px;background:#2563eb;font-weight:900}.read{background:rgba(255,255,255,.07);color:#94a3b8}.msg{margin-top:7px;color:#cbd5e1;font-size:12px;line-height:1.55}.time{margin-top:9px;color:#64748b;font-size:10px}.item-actions{margin-top:12px;display:flex;gap:8px}.small{font-size:10px;padding:8px 10px}
+.empty{text-align:center;padding:45px 20px;color:#64748b}.loader{text-align:center;padding:35px;color:#94a3b8}
+.toast{position:fixed;left:50%;bottom:25px;transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:12px 17px;border-radius:14px;background:rgba(15,23,42,.96);border:1px solid rgba(255,255,255,.1);z-index:50;font-size:12px;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:600px){.brand h1{font-size:15px}.hero{padding:18px}.hero h2{font-size:21px}}
+</style>
+</head>
+<body>
+<header class="header">
+<button class="back" onclick="history.back()">‹</button>
+<div class="brand"><h1>🔔 Notifications</h1><p>NR Kirana Khandwa</p></div>
+<div id="unreadPill" class="unread-pill">0 unread</div>
+</header>
+
+<main class="wrap">
+<section class="hero">
+<h2>आपके Notifications 🔔</h2>
+<p id="customerInfo">आपके order के सभी updates यहाँ दिखेंगे।</p>
+<div class="actions">
+<button class="btn primary" onclick="markAllRead()">✓ सब Read करें</button>
+<button class="btn" onclick="loadNotifications()">↻ Refresh</button>
+<button class="btn" onclick="location.href='orders.html'">🛒 My Orders</button>
+</div>
+</section>
+
+<section id="list" class="list"><div class="loader">Notifications loading...</div></section>
+</main>
+<div id="toast" class="toast"></div>
+
+<script>
+const db=window.nrSupabase;
+const list=document.getElementById("list");
+const unreadPill=document.getElementById("unreadPill");
+const customerInfo=document.getElementById("customerInfo");
+let customerMobile="";
+let notifications=[];
+
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2200)}
+function getMobile(){
+  let m=localStorage.getItem("loginMobile")||"";
+  m=m.replace(/\D/g,"").slice(-10);
+  return m;
+}
+function iconFor(n){
+  const t=n.type||"info";
+  if(t==="order")return "🛒"; if(t==="delivery")return "🚴"; if(t==="success")return "🎉";
+  if(t==="danger")return "❌"; if(t==="status")return "📦"; return "🔔";
+}
+function timeAgo(d){
+  const ms=Date.now()-new Date(d).getTime(), min=Math.floor(ms/60000);
+  if(min<1)return "अभी";
+  if(min<60)return min+" मिनट पहले";
+  const h=Math.floor(min/60); if(h<24)return h+" घंटे पहले";
+  const day=Math.floor(h/24); if(day<7)return day+" दिन पहले";
+  return new Date(d).toLocaleString("hi-IN",{dateStyle:"medium",timeStyle:"short"});
+}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function render(){
+  const unread=notifications.filter(n=>!n.is_read).length;
+  unreadPill.textContent=unread+" unread";
+  if(!notifications.length){list.innerHTML='<div class="item empty">🔕 अभी कोई notification नहीं है।</div>';return}
+  list.innerHTML=notifications.map(n=>`
+    <article class="item ${n.is_read?"":"unread"}">
+      <div class="row">
+        <div class="icon">${iconFor(n)}</div>
+        <div class="content">
+          <div class="top"><div class="title">${esc(n.title)}</div><span class="badge ${n.is_read?"read":""}">${n.is_read?"READ":"NEW"}</span></div>
+          <div class="msg">${esc(n.message)}</div>
+          <div class="time">${timeAgo(n.created_at)}</div>
+          ${!n.is_read?`<div class="item-actions"><button class="btn small" onclick="markRead('${n.id}')">✓ Mark as Read</button></div>`:""}
+        </div>
+      </div>
+    </article>`).join("");
+}
+async function loadNotifications(){
+  customerMobile=getMobile();
+  if(!customerMobile){list.innerHTML='<div class="item empty">कृपया पहले login करें।</div>';return}
+  customerInfo.textContent="Mobile: +91 "+customerMobile.slice(0,2)+"••••••"+customerMobile.slice(-2);
+  if(!db){list.innerHTML='<div class="item empty">Supabase connection नहीं मिली।</div>';return}
+  list.innerHTML='<div class="loader">Notifications loading...</div>';
+  const {data,error}=await db.rpc("get_customer_notifications",{p_customer_mobile:customerMobile});
+  if(error){console.error(error);list.innerHTML='<div class="item empty">Notifications load नहीं हो सके। Supabase RPC check करें।</div>';return}
+  notifications=data||[]; render();
+}
+async function markRead(id){
+  const {error}=await db.rpc("mark_customer_notification_read",{p_notification_id:id,p_customer_mobile:customerMobile});
+  if(error){toast("Read नहीं हो पाया");return}
+  const n=notifications.find(x=>x.id===id);if(n)n.is_read=true;render();
+}
+async function markAllRead(){
+  if(!customerMobile)return;
+  const {error}=await db.rpc("mark_all_customer_notifications_read",{p_customer_mobile:customerMobile});
+  if(error){toast("Update नहीं हो पाया");return}
+  notifications.forEach(n=>n.is_read=true);render();toast("✓ सभी notifications read हो गए");
+}
+function subscribe(){
+  if(!db||!customerMobile)return;
+  db.channel("customer-notifications-"+customerMobile)
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"customer_notifications",filter:"customer_mobile=eq."+customerMobile},async payload=>{
+      notifications.unshift(payload.new);render();toast("🔔 Order update आया है");
+      try{const a=new Audio("customer-notification-sound.wav");await a.play()}catch(e){}
+   })
+   .on("postgres_changes",{event:"UPDATE",schema:"public",table:"customer_notifications",filter:"customer_mobile=eq."+customerMobile},payload=>{
+      const i=notifications.findIndex(n=>n.id===payload.new.id);if(i>=0){notifications[i]=payload.new;render()}
+   }).subscribe();
+}
+async function start(){
+  customerMobile=getMobile();
+  await loadNotifications();
+  subscribe();
+}
+start();
+</script>
+</body>
+</html>

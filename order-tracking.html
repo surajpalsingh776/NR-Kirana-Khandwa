@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Order • NR Kirana Khandwa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at top,#dfffe9 0,#f6fffa 42%,#eef5f2 100%);color:#10231a;min-height:100vh}.app{max-width:760px;margin:auto;padding:18px 14px 40px}.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}.back{width:46px;height:46px;border:0;border-radius:16px;background:rgba(255,255,255,.8);box-shadow:0 10px 25px #183d2920, inset 0 1px #fff;cursor:pointer;font-size:22px}.brand{font-weight:900;font-size:22px}.sub{font-size:12px;color:#668075}.hero,.card{background:rgba(255,255,255,.78);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);border-radius:28px;box-shadow:0 18px 45px #173e2a18,inset 0 1px #fff;margin-bottom:16px}.hero{padding:22px}.hero h1{margin:0 0 7px;font-size:27px}.order-no{font-weight:800;color:#168447}.live{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:8px 12px;border-radius:999px;background:#e8fff1;color:#08743b;font-size:12px;font-weight:800}.dot{width:8px;height:8px;border-radius:50%;background:#15a65b;box-shadow:0 0 0 5px #15a65b18}.status-box{margin-top:18px;padding:18px;border-radius:22px;background:linear-gradient(145deg,#f7fffa,#eafff1);box-shadow:inset 0 1px #fff}.status-label{font-size:12px;color:#6b8076}.status{font-size:23px;font-weight:950;margin-top:5px}.progress{height:10px;background:#dce9e2;border-radius:99px;overflow:hidden;margin-top:14px}.bar{height:100%;width:0;background:linear-gradient(90deg,#0b8f4d,#29c878);border-radius:99px;transition:.5s}.steps{padding:22px}.step{display:flex;gap:14px;position:relative;padding-bottom:25px}.step:last-child{padding-bottom:0}.line{position:absolute;left:15px;top:34px;width:3px;height:calc(100% - 18px);background:#d9e7df}.step.done .line{background:#28a968}.circle{z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e2ebe6;color:#7c8e86;font-weight:900;box-shadow:0 7px 15px #173e2a12}.step.done .circle{background:#19a65d;color:white;box-shadow:0 8px 18px #19a65d35}.step.current .circle{background:#0c8748;color:white;box-shadow:0 0 0 7px #0c87481a}.step-title{font-weight:900}.step-time{font-size:12px;color:#71837b;margin-top:4px}.card{padding:20px}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #e7eee9}.row:last-child{border-bottom:0}.muted{color:#71837b;font-size:13px}.value{text-align:right;font-weight:800}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:16px;padding:14px;font-weight:900;cursor:pointer;box-shadow:0 10px 22px #173e2a14}.primary{background:#11884b;color:white}.secondary{background:white;color:#123b28}.empty{text-align:center;padding:35px 20px}.error{color:#b3261e;background:#fff0ef;padding:12px;border-radius:14px;font-size:13px;display:none;margin-top:12px}@media(max-width:520px){.buttons{grid-template-columns:1fr}.hero h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><button class="back" onclick="history.length>1?history.back():location.href='orders.html'">‹</button><div><div class="brand">NR Kirana Khandwa</div><div class="sub">Live Order Tracking</div></div></div>
+  <section class="hero">
+    <h1>आपका Order 🚚</h1>
+    <div class="order-no" id="orderNo">Order loading...</div>
+    <div class="live"><span class="dot"></span> Live status updates</div>
+    <div class="status-box"><div class="status-label">Current Status</div><div class="status" id="statusText">Loading…</div><div class="progress"><div class="bar" id="progressBar"></div></div><div class="error" id="errorBox"></div></div>
+  </section>
+  <section class="card steps" id="steps"></section>
+  <section class="card"><h3 style="margin:0 0 10px">Order Details</h3><div class="row"><span class="muted">Customer</span><span class="value" id="customer">—</span></div><div class="row"><span class="muted">Payment</span><span class="value" id="payment">—</span></div><div class="row"><span class="muted">Total</span><span class="value" id="total">₹0</span></div><div class="row"><span class="muted">Delivery Address</span><span class="value" id="address">—</span></div></section>
+  <div class="buttons"><button class="btn secondary" onclick="location.href='orders.html'">📦 My Orders</button><button class="btn primary" onclick="location.href='home.html'">🛒 Shopping जारी रखें</button></div>
+</div>
+<script>
+const db=window.nrSupabase||window.supabaseClient;
+const mobile=(localStorage.getItem('loginMobile')||'').replace(/\D/g,'');
+const saved=JSON.parse(localStorage.getItem('nrCurrentOrder')||'null');
+const params=new URLSearchParams(location.search);const wantedId=params.get('id');const wantedNo=params.get('order');
+let current=null;
+const statusList=['Order Placed','Accepted','Packing','Out for Delivery','Delivered'];
+const statusIcon={'Order Placed':'📝','Accepted':'✅','Packing':'📦','Out for Delivery':'🛵','Delivered':'🎉','Cancelled':'❌'};
+function money(v){return '₹'+Number(v||0).toLocaleString('en-IN')}
+function addressText(a){if(!a)return '—';if(typeof a==='string')return a;return [a.houseShop,a.area,a.city,a.pincode,a.landmark].filter(Boolean).join(', ')||a.fullAddress||'—'}
+function render(o){if(!o)return;current=o;document.getElementById('orderNo').textContent=o.order_number||o.id||'Order';document.getElementById('statusText').textContent=o.status||'Order Placed';document.getElementById('customer').textContent=o.customer_name||'—';document.getElementById('payment').textContent=(o.payment_method||'—')+' • '+(o.payment_status||'—');document.getElementById('total').textContent=money(o.total);document.getElementById('address').textContent=addressText(o.address);let s=o.status||'Order Placed';let cancelled=s==='Cancelled';let idx=statusList.indexOf(s);let pct=cancelled?100:idx<0?15:((idx+1)/statusList.length)*100;document.getElementById('progressBar').style.width=pct+'%';const steps=document.getElementById('steps');let list=cancelled?['Order Placed','Accepted','Packing','Out for Delivery','Cancelled']:statusList;steps.innerHTML=list.map((x,i)=>{let done=cancelled?x==='Cancelled'||i<=3:(idx>=0&&i<=idx);let cur=x===s;return `<div class="step ${done?'done':''} ${cur?'current':''}"><div class="circle">${statusIcon[x]||'•'}</div>${i<list.length-1?'<div class="line"></div>':''}<div><div class="step-title">${x}</div><div class="step-time">${cur?'Current status':''}</div></div></div>`}).join('')}
+async function load(){try{if(!db)throw Error('Supabase config नहीं मिला।');if(!mobile)throw Error('Customer mobile नहीं मिला। पहले login करें।');const {data,error}=await db.rpc('get_customer_orders',{p_customer_mobile:mobile});if(error)throw error;let arr=Array.isArray(data)?data:[];let found=arr.find(o=>(wantedId&&String(o.id)===String(wantedId))||(wantedNo&&String(o.order_number)===String(wantedNo))||(saved&&o.id&&saved.id&&String(o.id)===String(saved.id))||(saved&&o.order_number&&saved.order_number&&String(o.order_number)===String(saved.order_number)));if(!found&&saved&&arr.length===0&&saved.customer_mobile&&String(saved.customer_mobile).replace(/\D/g,'')===mobile)found=saved;if(!found)throw Error('यह order आपके account में नहीं मिला।');render(found);document.getElementById('errorBox').style.display='none'}catch(e){console.error(e);const box=document.getElementById('errorBox');box.textContent=e.message||'Order load नहीं हो पाया।';box.style.display='block';if(saved)render(saved)}}
+load();setInterval(load,10000);
+if(db){db.channel('customer-order-tracking').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>load()).subscribe()}
+</script>
+</body></html>

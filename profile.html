@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Profile - NR Kirana Khandwa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#e9fff1 0,#f5f8f7 42%,#eef2f1 100%);color:#102018;min-height:100vh;padding-bottom:30px}
+.container{max-width:650px;margin:auto;padding:18px 15px 35px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.back{width:44px;height:44px;border:0;border-radius:15px;background:rgba(255,255,255,.85);box-shadow:0 8px 22px rgba(0,0,0,.10);font-size:20px;cursor:pointer}
+.brand{font-size:20px;font-weight:900}.sub{font-size:12px;color:#6b7771;margin-top:3px}
+.card{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.95);border-radius:24px;padding:20px;margin-bottom:15px;box-shadow:0 18px 45px rgba(24,67,43,.12),inset 0 1px rgba(255,255,255,.9);backdrop-filter:blur(14px)}
+.hero{text-align:center;padding:25px 18px}
+.avatar-wrap{position:relative;width:108px;margin:auto}.avatar{width:88px;height:88px;margin:auto;border-radius:28px;display:grid;place-items:center;font-size:42px;background:linear-gradient(145deg,#ffffff,#dff6e7);box-shadow:12px 12px 25px rgba(20,70,40,.14),-7px -7px 18px rgba(255,255,255,.95);border:1px solid #fff;overflow:hidden;background-size:cover;background-position:center}.photo-btn{position:absolute;right:0;bottom:0;width:34px;height:34px;border:3px solid white;border-radius:50%;background:#0b8f3c;color:#fff;cursor:pointer;font-size:15px;box-shadow:0 6px 15px rgba(0,0,0,.2)}.photo-actions{display:flex;justify-content:center;gap:8px;margin-top:10px}.photo-actions button{border:1px solid #dce8df;background:#f5faf7;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;color:#176b35}
+h1{font-size:24px;margin-top:14px}.mobile{color:#6a756f;margin-top:5px;font-size:14px}
+.title{font-size:17px;font-weight:900;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:800;color:#53615a;margin:0 0 7px 3px}
+input,textarea{width:100%;border:1px solid #dce6df;background:#f8fbf9;border-radius:15px;padding:13px;font-size:14px;outline:none;transition:.2s;margin-bottom:13px}
+input:focus,textarea:focus{border-color:#27a85b;box-shadow:0 0 0 4px rgba(39,168,91,.10);background:#fff}
+textarea{min-height:100px;resize:vertical}
+.btn{width:100%;border:0;border-radius:16px;padding:14px;font-size:14px;font-weight:900;cursor:pointer;background:linear-gradient(145deg,#13a651,#087b38);color:#fff;box-shadow:0 10px 22px rgba(8,123,56,.25)}
+.btn:active{transform:translateY(1px)}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.menu a{padding:15px;border-radius:17px;text-decoration:none;color:#17221c;font-weight:800;background:linear-gradient(145deg,#fff,#eef4f0);box-shadow:7px 7px 16px rgba(0,0,0,.08),-5px -5px 12px #fff}
+.menu a span{display:block;font-size:22px;margin-bottom:7px}.danger{color:#c62828!important}
+.msg{display:none;margin:0 0 14px;padding:12px 14px;border-radius:13px;font-size:13px;font-weight:800}.ok{background:#e7f8ed;color:#16733c}.err{background:#ffeded;color:#b42318}
+.loading{text-align:center;padding:30px;color:#69756e}
+@media(max-width:420px){.menu{grid-template-columns:1fr}.container{padding:14px 12px 30px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top">
+    <button class="back" onclick="history.back()">←</button>
+    <div><div class="brand">NR Kirana Khandwa</div><div class="sub">My Profile</div></div>
+  </div>
+
+  <div id="loading" class="loading">⏳ Profile loading...</div>
+
+  <main id="content" style="display:none">
+    <section class="card hero">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarBox">👤</div>
+        <button class="photo-btn" type="button" onclick="document.getElementById('photoInput').click()">📷 Photo</button>
+        <input id="photoInput" type="file" accept="image/*" hidden onchange="changePhoto(event)">
+      </div>
+      <div class="photo-actions">
+        <button type="button" onclick="document.getElementById('photoInput').click()">🖼️ फोटो चुनें</button>
+        <button type="button" onclick="removePhoto()">🗑️ हटाएँ</button>
+      </div>
+      <h1 id="displayName">Customer</h1>
+      <div class="mobile" id="displayMobile">+91 —</div>
+    </section>
+
+    <div id="message" class="msg"></div>
+
+    <section class="card">
+      <div class="title">✏️ Personal Details</div>
+      <label for="fullName">पूरा नाम</label>
+      <input id="fullName" type="text" maxlength="80" placeholder="अपना नाम लिखें">
+      <label for="email">Email</label>
+      <input id="email" type="email" maxlength="120" placeholder="example@email.com">
+      <button class="btn" id="saveBtn" onclick="saveProfile()">💾 Profile Save करें</button>
+    </section>
+
+    <section class="card">
+      <div class="title">📍 Saved Address</div>
+      <label for="address">Address</label>
+      <textarea id="address" placeholder="अपना saved delivery address लिखें"></textarea>
+      <button class="btn" onclick="saveAddress()">📍 Address Save करें</button>
+    </section>
+
+    <section class="card">
+      <div class="title">⚡ Quick Access</div>
+      <div class="menu">
+        <a href="orders.html"><span>📦</span>My Orders</a>
+        <a href="notifications.html"><span>🔔</span>Notifications</a>
+        <a href="cart.html"><span>🛒</span>My Cart</a>
+        <a href="help.html"><span>❓</span>Help & Support</a>
+        <a href="home.html"><span>🏠</span>Home</a>
+        <a href="address.html"><span>📍</span>Delivery Address</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <button class="btn danger" style="background:linear-gradient(145deg,#fff,#fff0f0);color:#c62828;box-shadow:none;border:1px solid #ffd4d4" onclick="logout()">🚪 Logout</button>
+    </section>
+  </main>
+</div>
+
+<script>
+const db = window.nrSupabase || window.supabaseClient || null;
+let mobile = localStorage.getItem("loginMobile") || "";
+let profile = null;
+
+function esc(v){return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function showMsg(text,type="ok"){const el=document.getElementById("message");el.textContent=text;el.className="msg "+type;el.style.display="block";setTimeout(()=>el.style.display="none",3000)}
+function loadPhoto(){
+  const photo = localStorage.getItem("nrProfilePhoto");
+  const box = document.getElementById("avatarBox");
+  if(photo){ box.style.backgroundImage = `url("${photo}")`; box.textContent = ""; }
+}
+function changePhoto(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  if(!file.type.startsWith("image/")){ showMsg("कृपया image चुनें।","err"); return; }
+  if(file.size > 5 * 1024 * 1024){ showMsg("Photo 5MB से छोटी रखें।","err"); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      localStorage.setItem("nrProfilePhoto", reader.result);
+      loadPhoto();
+      showMsg("Profile photo save हो गई।");
+    }catch(e){
+      showMsg("Photo बहुत बड़ी है। छोटी photo चुनें।","err");
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(){
+  localStorage.removeItem("nrProfilePhoto");
+  const box = document.getElementById("avatarBox");
+  box.style.backgroundImage = "";
+  box.textContent = "👤";
+  showMsg("Profile photo हटा दी गई।");
+}
+function getAddressText(a){
+  if(!a)return "";
+  if(typeof a==="string")return a;
+  return [a.fullAddress,a.house,a.area,a.city,a.pincode,a.landmark].filter(Boolean).join(", ");
+}
+function loadSavedAddress(){
+  try{
+    const local=JSON.parse(localStorage.getItem("nrDeliveryAddress")||"null");
+    return local||{};
+  }catch{return {}}
+}
+async function loadProfile(){
+  if(!mobile){alert("Login mobile नहीं मिला।");location.href="login.html";return}
+  document.getElementById("displayMobile").textContent="+91 "+mobile;
+  loadPhoto();
+  if(!db){showMsg("Supabase config नहीं मिला।","err");return}
+  const {data,error}=await db.rpc("get_customer_profile",{p_mobile:mobile});
+  if(error){console.error(error);showMsg("Profile load नहीं हो पाया।","err");}
+  profile=data||{mobile};
+  document.getElementById("fullName").value=profile.full_name||"";
+  document.getElementById("email").value=profile.email||"";
+  document.getElementById("address").value=getAddressText(profile.address)||getAddressText(loadSavedAddress());
+  document.getElementById("displayName").textContent=profile.full_name||"Customer";
+  document.getElementById("loading").style.display="none";
+  document.getElementById("content").style.display="block";
+}
+async function saveProfile(){
+  const name=document.getElementById("fullName").value.trim();
+  const email=document.getElementById("email").value.trim();
+  if(!name){showMsg("कृपया नाम भरें।","err");return}
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showMsg("Valid email डालें।","err");return}
+  const btn=document.getElementById("saveBtn");btn.disabled=true;btn.textContent="⏳ Saving...";
+  const {data,error}=await db.rpc("update_customer_profile",{p_mobile:mobile,p_full_name:name,p_email:email,p_address:profile?.address||{}}); 
+  btn.disabled=false;btn.textContent="💾 Profile Save करें";
+  if(error){console.error(error);showMsg("Profile save नहीं हुआ।","err");return}
+  profile=data||profile;document.getElementById("displayName").textContent=name;showMsg("Profile successfully save हो गया।");
+}
+async function saveAddress(){
+  const text=document.getElementById("address").value.trim();
+  if(!text){showMsg("कृपया address भरें।","err");return}
+  try{
+    localStorage.setItem("nrDeliveryAddress",JSON.stringify({fullAddress:text,fullName:document.getElementById("fullName").value.trim(),mobile}));
+  }catch{}
+  const address={fullAddress:text,fullName:document.getElementById("fullName").value.trim(),mobile};
+  const {data,error}=await db.rpc("update_customer_profile",{p_mobile:mobile,p_full_name:document.getElementById("fullName").value.trim(),p_email:document.getElementById("email").value.trim(),p_address:address});
+  if(error){console.error(error);showMsg("Address save नहीं हुआ।","err");return}
+  profile=data||profile;showMsg("Address successfully save हो गया।");
+}
+function logout(){
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("loginMobile");
+  location.href="login.html";
+}
+loadProfile();
+</script>
+</body>
+</html>

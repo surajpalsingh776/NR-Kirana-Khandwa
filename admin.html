@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#020617"
+>
+
+<title>NR Kirana Khandwa - Admin Dashboard</title>
+
+<link
+    rel="manifest"
+    href="./admin-manifest.json"
+>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./supabase-config.js"></script>
+
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+body{
+
+    min-height:100vh;
+
+    color:#fff;
+
+    background:
+
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(37,99,235,.20),
+            transparent 30%
+        ),
+
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(124,58,237,.18),
+            transparent 30%
+        ),
+
+        #020617;
+
+}
+
+
+/* ==========================================
+   LOADING
+========================================== */
+
+#pageLoader{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    gap:15px;
+
+    background:#020617;
+
+}
+
+.loader{
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    border:
+        4px solid
+        rgba(255,255,255,.15);
+
+    border-top-color:#60a5fa;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+#pageLoader p{
+
+    color:#94a3b8;
+
+    font-size:13px;
+
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.header{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:100;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:
+        15px 22px;
+
+    background:
+        rgba(2,6,23,.82);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.08);
+
+    backdrop-filter:
+        blur(20px);
+
+}
+
+
+.brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+.brand-logo{
+
+    width:48px;
+
+    height:48px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:15px;
+
+    font-size:25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1e293b,
+            #020617
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    box-shadow:
+        6px 6px 15px
+        rgba(0,0,0,.4);
+
+}
+
+
+.brand-text h1{
+
+    font-size:18px;
+
+    font-weight:900;
+
+}
+
+
+.brand-text p{
+
+    margin-top:3px;
+
+    color:#64748b;
+
+    font-size:11px;
+
+}
+
+
+.header-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+.admin-email{
+
+    display:none;
+
+    padding:
+        8px 12px;
+
+    border-radius:12px;
+
+    color:#cbd5e1;
+
+    background:
+        rgba(255,255,255,.05);
+
+    font-size:12px;
+
+}
+
+
+/* ==========================================
+   NOTIFICATIONS
+========================================== */
+.notification-btn{
+    position:relative;
+    width:42px;
+    height:42px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    color:#fff;
+    background:rgba(255,255,255,.06);
+    cursor:pointer;
+    font-size:20px;
+    box-shadow:6px 6px 15px rgba(0,0,0,.22);
+}
+.notification-btn:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,.10);
+}
+.notification-badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:999px;
+    background:#ef4444;
+    color:#fff;
+    border:2px solid #020617;
+    font-size:9px;
+    font-weight:900;
+}
+.notification-badge.hidden{
+    display:none;
+}
+
+.logout-btn{
+
+    border:0;
+
+    padding:
+        10px 14px;
+
+    border-radius:12px;
+
+    color:#fecaca;
+
+    background:
+        rgba(127,29,29,.28);
+
+    border:
+        1px solid
+        rgba(248,113,113,.18);
+
+    cursor:pointer;
+
+    font-weight:800;
+
+}
+
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.container{
+
+    width:100%;
+
+    max-width:1400px;
+
+    margin:auto;
+
+    padding:24px;
+
+}
+
+
+/* ==========================================
+   WELCOME
+========================================== */
+
+.welcome{
+
+    margin-bottom:22px;
+
+}
+
+
+.welcome h2{
+
+    font-size:26px;
+
+    font-weight:900;
+
+}
+
+
+.welcome p{
+
+    margin-top:7px;
+
+    color:#94a3b8;
+
+    font-size:13px;
+
+}
+
+
+/* ==========================================
+   STATS
+========================================== */
+
+.stats{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:16px;
+
+    margin-bottom:22px;
+
+}
+
+
+.stat-card{
+
+    padding:20px;
+
+    border-radius:22px;
+
+    background:
+        rgba(15,23,42,.72);
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    box-shadow:
+
+        10px 10px 25px
+        rgba(0,0,0,.25),
+
+        inset 0 1px 0
+        rgba(255,255,255,.04);
+
+}
+
+
+.stat-icon{
+
+    width:44px;
+
+    height:44px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:14px;
+
+    margin-bottom:13px;
+
+    font-size:22px;
+
+    background:
+        rgba(255,255,255,.06);
+
+}
+
+
+.stat-title{
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+}
+
+
+.stat-value{
+
+    margin-top:5px;
+
+    font-size:25px;
+
+    font-weight:900;
+
+}
+
+
+/* ==========================================
+   GRID
+========================================== */
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        1.4fr 1fr;
+
+    gap:18px;
+
+}
+
+
+.card{
+
+    padding:20px;
+
+    border-radius:24px;
+
+    background:
+        rgba(15,23,42,.72);
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    box-shadow:
+
+        10px 10px 30px
+        rgba(0,0,0,.25),
+
+        inset 0 1px 0
+        rgba(255,255,255,.04);
+
+}
+
+
+.card-title{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:18px;
+
+}
+
+
+.card-title h3{
+
+    font-size:17px;
+
+    font-weight:900;
+
+}
+
+
+.card-title span{
+
+    color:#64748b;
+
+    font-size:11px;
+
+}
+
+
+/* ==========================================
+   QUICK ACTIONS
+========================================== */
+
+.actions{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:12px;
+
+}
+
+
+.action{
+
+    padding:16px;
+
+    border-radius:18px;
+
+    color:#fff;
+
+    background:
+        rgba(255,255,255,.04);
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    cursor:pointer;
+
+    text-align:left;
+
+    transition:.2s;
+
+}
+
+
+.action:hover{
+
+    transform:
+        translateY(-2px);
+
+    background:
+        rgba(255,255,255,.07);
+
+}
+
+
+.action-icon{
+
+    font-size:25px;
+
+    margin-bottom:9px;
+
+}
+
+
+.action strong{
+
+    display:block;
+
+    font-size:13px;
+
+}
+
+
+.action small{
+
+    display:block;
+
+    margin-top:4px;
+
+    color:#64748b;
+
+    font-size:10px;
+
+}
+
+
+/* ==========================================
+   ORDERS
+========================================== */
+
+.order-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+
+.order{
+
+    padding:14px;
+
+    border-radius:16px;
+
+    background:
+        rgba(255,255,255,.035);
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+}
+
+
+.order-top{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+}
+
+
+.order-id{
+
+    font-size:12px;
+
+    font-weight:900;
+
+}
+
+
+.order-status{
+
+    padding:
+        5px 9px;
+
+    border-radius:999px;
+
+    font-size:9px;
+
+    background:
+        rgba(59,130,246,.15);
+
+    color:#93c5fd;
+
+}
+
+
+.order-info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-top:9px;
+
+    color:#94a3b8;
+
+    font-size:11px;
+
+}
+
+
+.empty{
+
+    padding:30px;
+
+    text-align:center;
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
+
+
+/* ==========================================
+   SALES
+========================================== */
+
+.sales-box{
+
+    display:flex;
+
+    align-items:flex-end;
+
+    gap:10px;
+
+    height:180px;
+
+    padding-top:20px;
+
+}
+
+
+.bar{
+
+    flex:1;
+
+    min-height:10px;
+
+    border-radius:
+        8px 8px 3px 3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #60a5fa,
+            #2563eb
+        );
+
+    position:relative;
+
+}
+
+
+.bar span{
+
+    position:absolute;
+
+    bottom:-20px;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    color:#64748b;
+
+    font-size:9px;
+
+}
+
+
+/* ==========================================
+   BOTTOM NAV
+========================================== */
+
+.bottom-nav{
+
+    display:none;
+
+    position:fixed;
+
+    bottom:0;
+
+    left:0;
+
+    right:0;
+
+    z-index:200;
+
+    padding:
+        9px 6px;
+
+    background:
+        rgba(2,6,23,.94);
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.08);
+
+    backdrop-filter:
+        blur(20px);
+
+}
+
+
+.nav-item{
+
+    flex:1;
+
+    border:0;
+
+    background:none;
+
+    color:#64748b;
+
+    cursor:pointer;
+
+    text-align:center;
+
+    font-size:10px;
+
+}
+
+
+.nav-item div{
+
+    font-size:20px;
+
+    margin-bottom:3px;
+
+}
+
+
+.nav-item.active{
+
+    color:#60a5fa;
+
+}
+
+
+/* ==========================================
+   TOAST
+========================================== */
+
+.toast{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:25px;
+
+    transform:
+        translate(-50%,30px);
+
+    padding:
+        12px 18px;
+
+    border-radius:14px;
+
+    color:#fff;
+
+    background:
+        rgba(15,23,42,.95);
+
+    border:
+        1px solid
+        rgba(255,255,255,.10);
+
+    box-shadow:
+        0 15px 35px
+        rgba(0,0,0,.4);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.25s;
+
+    z-index:1000;
+
+    font-size:12px;
+
+}
+
+
+.toast.show{
+
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:900px){
+
+    .stats{
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+
+    .dashboard-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+@media(max-width:600px){
+
+    body{
+
+        padding-bottom:70px;
+
+    }
+
+
+    .header{
+
+        padding:
+            12px 14px;
+
+    }
+
+
+    .brand-text h1{
+
+        font-size:15px;
+
+    }
+
+
+    .brand-text p{
+
+        display:none;
+
+    }
+
+
+    .brand-logo{
+
+        width:42px;
+
+        height:42px;
+
+        font-size:22px;
+
+    }
+
+
+    .admin-email{
+
+        display:none;
+
+    }
+
+
+    .notification-btn{
+        width:38px;
+        height:38px;
+        border-radius:12px;
+        font-size:18px;
+    }
+
+    .logout-btn{
+
+        padding:
+            9px 10px;
+
+        font-size:10px;
+
+    }
+
+
+    .container{
+
+        padding:18px 14px;
+
+    }
+
+
+    .welcome h2{
+
+        font-size:22px;
+
+    }
+
+
+    .stats{
+
+        gap:10px;
+
+    }
+
+
+    .stat-card{
+
+        padding:15px;
+
+        border-radius:18px;
+
+    }
+
+
+    .stat-value{
+
+        font-size:21px;
+
+    }
+
+
+    .dashboard-grid{
+
+        gap:12px;
+
+    }
+
+
+    .card{
+
+        padding:16px;
+
+        border-radius:20px;
+
+    }
+
+
+    .bottom-nav{
+
+        display:flex;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     LOADER
+========================================== -->
+
+<div id="pageLoader">
+
+    <div class="loader"></div>
+
+    <p>Admin security check...</p>
+
+</div>
+
+
+<!-- ==========================================
+     HEADER
+========================================== -->
+
+<header class="header">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            🛒
+        </div>
+
+        <div class="brand-text">
+
+            <h1>
+                NR Kirana Khandwa
+            </h1>
+
+            <p>
+                Admin Dashboard
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="header-right">
+
+        <div
+            id="adminEmail"
+            class="admin-email"
+        ></div>
+
+
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+        >
+            🚪 Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="container">
+
+
+    <section class="welcome">
+
+        <h2>
+            Welcome, Admin 👋
+        </h2>
+
+        <p id="welcomeEmail">
+            Dashboard loading...
+        </p>
+
+    </section>
+
+
+    <!-- ======================================
+         STATS
+    ======================================= -->
+
+    <section class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🛒
+            </div>
+
+            <div class="stat-title">
+                Total Orders
+            </div>
+
+            <div
+                id="totalOrders"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                👥
+            </div>
+
+            <div class="stat-title">
+                Customers
+            </div>
+
+            <div
+                id="totalCustomers"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📦
+            </div>
+
+            <div class="stat-title">
+                Products
+            </div>
+
+            <div
+                id="totalProducts"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                ₹
+            </div>
+
+            <div class="stat-title">
+                Total Sales
+            </div>
+
+            <div
+                id="totalSales"
+                class="stat-value"
+            >
+                ₹0
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         DASHBOARD GRID
+    ======================================= -->
+
+    <section class="dashboard-grid">
+
+
+        <!-- ==================================
+             RECENT ORDERS
+        =================================== -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h3>
+                    Recent Orders
+                </h3>
+
+                <span>
+                    Latest
+                </span>
+
+            </div>
+
+
+            <div
+                id="recentOrders"
+                class="order-list"
+            >
+
+                <div class="empty">
+                    Orders loading...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             QUICK ACTIONS
+        =================================== -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h3>
+                    Quick Actions
+                </h3>
+
+            </div>
+
+
+            <div class="actions">
+
+
+                <button
+                    class="action"
+                    onclick="goProducts()"
+                >
+
+                    <div class="action-icon">
+                        📦
+                    </div>
+
+                    <strong>
+                        Products
+                    </strong>
+
+                    <small>
+                        Add / Edit / Stock
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="action"
+                    onclick="goOrders()"
+                >
+
+                    <div class="action-icon">
+                        🛒
+                    </div>
+
+                    <strong>
+                        Orders
+                    </strong>
+
+                    <small>
+                        Manage orders
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="action"
+                    onclick="goCustomers()"
+                >
+
+                    <div class="action-icon">
+                        👥
+                    </div>
+
+                    <strong>
+                        Customers
+                    </strong>
+
+                    <small>
+                        Customer details
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="action"
+                    onclick="goDelivery()"
+                >
+
+                    <div class="action-icon">
+                        🚴
+                    </div>
+
+                    <strong>
+                        Delivery
+                    </strong>
+
+                    <small>
+                        Delivery management
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="action"
+                    onclick="goNotifications()"
+                >
+
+                    <div class="action-icon">
+                        🔔
+                    </div>
+
+                    <strong>
+                        Notifications
+                    </strong>
+
+                    <small>
+                        Alerts & updates
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="action"
+                    onclick="location.href='index.html'"
+                >
+
+                    <div class="action-icon">
+                        🌐
+                    </div>
+
+                    <strong>
+                        Website
+                    </strong>
+
+                    <small>
+                        Customer website
+                    </small>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             SALES
+        =================================== -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h3>
+                    Sales Overview
+                </h3>
+
+                <span>
+                    Orders
+                </span>
+
+            </div>
+
+
+            <div
+                id="salesChart"
+                class="sales-box"
+            >
+
+                <div class="empty">
+                    Loading...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             SYSTEM
+        =================================== -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <h3>
+                    System Status
+                </h3>
+
+            </div>
+
+
+            <div class="order">
+
+
+                <div class="order-top">
+
+                    <span class="order-id">
+                        Supabase
+                    </span>
+
+                    <span
+                        id="supabaseStatus"
+                        class="order-status"
+                    >
+                        Checking...
+                    </span>
+
+                </div>
+
+
+                <div class="order-info">
+
+                    <span>
+                        Database
+                    </span>
+
+                    <span>
+                        NR Kirana
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="order"
+                style="margin-top:10px;"
+            >
+
+                <div class="order-top">
+
+                    <span class="order-id">
+                        Admin Account
+                    </span>
+
+                    <span
+                        id="accountStatus"
+                        class="order-status"
+                    >
+                        Active
+                    </span>
+
+                </div>
+
+
+                <div class="order-info">
+
+                    <span>
+                        Access
+                    </span>
+
+                    <span>
+                        Authorized
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+<!-- ==========================================
+     MOBILE NAV
+========================================== -->
+
+<nav class="bottom-nav">
+
+
+    <button
+        class="nav-item active"
+        onclick="location.href='admin.html'"
+    >
+
+        <div>
+            🏠
+        </div>
+
+        Dashboard
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        onclick="goProducts()"
+    >
+
+        <div>
+            📦
+        </div>
+
+        Products
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        onclick="goOrders()"
+    >
+
+        <div>
+            🛒
+        </div>
+
+        Orders
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        onclick="goDelivery()"
+    >
+
+        <div>
+            🚴
+        </div>
+
+        Delivery
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        onclick="goNotifications()"
+    >
+
+        <div>
+            🔔
+        </div>
+
+        Alerts
+
+    </button>
+
+</nav>
+
+
+<!-- ==========================================
+     TOAST
+========================================== -->
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+
+<script>
+
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const db =
+    window.nrSupabase;
+
+
+/* ==========================================
+   ELEMENTS
+========================================== */
+
+const pageLoader =
+    document.getElementById(
+        "pageLoader"
+    );
+
+
+const adminEmail =
+    document.getElementById(
+        "adminEmail"
+    );
+
+
+const welcomeEmail =
+    document.getElementById(
+        "welcomeEmail"
+    );
+
+
+const supabaseStatus =
+    document.getElementById(
+        "supabaseStatus"
+    );
+
+
+/* ==========================================
+   TOAST
+========================================== */
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+    setTimeout(
+        function(){
+
+            toast.classList.remove(
+                "show"
+            );
+
+        },
+        2500
+    );
+
+}
+
+
+/* ==========================================
+   AUTH CHECK
+========================================== */
+
+let adminVerified = false;
+let authRedirecting = false;
+let authCheckPromise = null;
+
+/* ==========================================
+   SAFE ADMIN REDIRECT
+========================================== */
+
+function redirectToAdminLogin(message = ""){
+
+    if(authRedirecting) return;
+
+    authRedirecting = true;
+
+    if(message){
+        console.warn("Admin auth:", message);
+    }
+
+    try{
+        localStorage.removeItem("nrAdminLoggedIn");
+        localStorage.removeItem("nrAdminEmail");
+        localStorage.removeItem("nrAdminLoginTime");
+    }catch{}
+
+    location.replace("admin-login.html");
+}
+
+
+/* ==========================================
+   AUTH CHECK
+   - Session को expire होने से पहले Supabase
+     अपने refresh token से refresh कर सकता है।
+   - Temporary admin_users/database error पर
+     तुरंत signOut नहीं करेंगे।
+========================================== */
+
+async function checkAdmin(){
+
+    if(adminVerified){
+        return true;
+    }
+
+    if(authCheckPromise){
+        return authCheckPromise;
+    }
+
+    authCheckPromise = (async function(){
+
+        if(!db){
+            redirectToAdminLogin("Supabase client नहीं मिला");
+            return false;
+        }
+
+        try{
+
+            const {
+                data,
+                error
+            } = await db.auth.getSession();
+
+            if(error){
+                console.error("Session check error:", error);
+                supabaseStatus.textContent = "Connection Error";
+                pageLoader.style.display = "none";
+                showToast("Supabase session check में समस्या हुई।");
+                return false;
+            }
+
+            const session = data && data.session;
+
+            if(!session){
+                redirectToAdminLogin("No active Supabase session");
+                return false;
+            }
+
+            console.log(
+                "Admin session active:",
+                session.user.id,
+                "expires:",
+                session.expires_at
+                    ? new Date(session.expires_at * 1000).toLocaleString()
+                    : "unknown"
+            );
+
+            const {
+                data: admin,
+                error: adminError
+            } = await db
+                .from("admin_users")
+                .select("id,email,is_active")
+                .eq("id", session.user.id)
+                .maybeSingle();
+
+            /*
+                IMPORTANT:
+                admin_users query में temporary RLS/network error
+                होने पर signOut नहीं करेंगे।
+                वरना valid login भी expire दिखने लगता है।
+            */
+
+            if(adminError){
+
+                console.error(
+                    "Admin verification error:",
+                    adminError
+                );
+
+                supabaseStatus.textContent = "DB Check Error";
+                pageLoader.style.display = "none";
+
+                showToast(
+                    "Admin verification अभी नहीं हो पाई। Refresh करके फिर try करें।"
+                );
+
+                return false;
+            }
+
+            if(!admin){
+
+                console.error(
+                    "Authenticated user admin_users में नहीं मिला।"
+                );
+
+                redirectToAdminLogin(
+                    "User is not registered as admin"
+                );
+
+                return false;
+            }
+
+            if(admin.is_active !== true){
+
+                redirectToAdminLogin(
+                    "Admin account inactive"
+                );
+
+                return false;
+            }
+
+            /* ================================
+               ADMIN VERIFIED
+            ================================= */
+
+            adminVerified = true;
+
+            adminEmail.textContent =
+                admin.email || session.user.email || "";
+
+            welcomeEmail.textContent =
+                "Logged in as " +
+                (admin.email || session.user.email || "Admin");
+
+            supabaseStatus.textContent =
+                "Connected";
+
+            try{
+                localStorage.setItem(
+                    "nrAdminLoggedIn",
+                    "true"
+                );
+
+                localStorage.setItem(
+                    "nrAdminEmail",
+                    admin.email || session.user.email || ""
+                );
+
+                localStorage.setItem(
+                    "nrAdminLoginTime",
+                    String(Date.now())
+                );
+            }catch{}
+
+            pageLoader.style.display = "none";
+
+            return true;
+
+        }
+        catch(error){
+
+            console.error(
+                "Auth check failed:",
+                error
+            );
+
+            supabaseStatus.textContent =
+                "Connection Error";
+
+            pageLoader.style.display =
+                "none";
+
+            showToast(
+                "Network/Auth error. कृपया थोड़ी देर बाद Refresh करें।"
+            );
+
+            return false;
+        }
+        finally{
+
+            authCheckPromise = null;
+        }
+
+    })();
+
+    return authCheckPromise;
+}
+
+
+/* ==========================================
+   LOAD DASHBOARD
+========================================== */
+
+async function loadDashboard(){
+
+    const isAdmin =
+        await checkAdmin();
+
+
+    if(!isAdmin){
+
+        return;
+
+    }
+
+
+    await Promise.all([
+        loadProducts(),
+        loadOrders()
+    ]);
+
+}
+
+
+/* ==========================================
+   PRODUCTS
+========================================== */
+
+async function loadProducts(){
+
+    try{
+
+        const {
+            count,
+            error
+        } =
+            await db
+                .from("products")
+                .select(
+                    "id",
+                    {
+                        count:"exact",
+                        head:true
+                    }
+                )
+                .eq(
+                    "is_active",
+                    true
+                );
+
+
+        if(error){
+
+            console.error(
+                "Products error:",
+                error
+            );
+
+            document.getElementById(
+                "totalProducts"
+            ).textContent =
+                "0";
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "totalProducts"
+        ).textContent =
+            count || 0;
+
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   ORDERS
+========================================== */
+
+async function loadOrders(){
+
+    const recentBox =
+        document.getElementById(
+            "recentOrders"
+        );
+
+
+    /*
+        अभी Orders localStorage से
+        पढ़े जा रहे हैं क्योंकि orders
+        table अभी Supabase में नहीं बनाई गई है।
+    */
+
+    let orders = [];
+
+
+    try{
+
+        orders =
+            JSON.parse(
+                localStorage.getItem(
+                    "nrOrders"
+                )
+            ) || [];
+
+    }
+    catch{
+
+        orders = [];
+
+    }
+
+
+    document.getElementById(
+        "totalOrders"
+    ).textContent =
+        orders.length;
+
+
+    // ====================================
+    // CUSTOMERS
+    // ====================================
+
+    const customers =
+        new Set();
+
+
+    orders.forEach(
+        function(order){
+
+            const mobile =
+                order &&
+                order.address &&
+                order.address.mobile;
+
+            if(mobile){
+
+                customers.add(
+                    mobile
+                );
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "totalCustomers"
+    ).textContent =
+        customers.size;
+
+
+    // ====================================
+    // SALES
+    // ====================================
+
+    let totalSales = 0;
+
+
+    orders.forEach(
+        function(order){
+
+            totalSales +=
+                Number(
+                    order.total || 0
+                );
+
+        }
+    );
+
+
+    document.getElementById(
+        "totalSales"
+    ).textContent =
+        "₹" +
+        totalSales.toLocaleString(
+            "en-IN"
+        );
+
+
+    // ====================================
+    // RECENT
+    // ====================================
+
+    if(!orders.length){
+
+        recentBox.innerHTML = `
+            <div class="empty">
+                अभी कोई order नहीं है।
+            </div>
+        `;
+
+    }
+    else{
+
+        const recent =
+            orders
+                .slice()
+                .reverse()
+                .slice(
+                    0,
+                    5
+                );
+
+
+        recentBox.innerHTML =
+            recent.map(
+                function(order){
+
+                    return `
+
+                        <div class="order">
+
+                            <div class="order-top">
+
+                                <span class="order-id">
+                                    #${escapeHtml(
+                                        order.orderId ||
+                                        "ORDER"
+                                    )}
+                                </span>
+
+                                <span class="order-status">
+                                    ${escapeHtml(
+                                        order.status ||
+                                        "Order Placed"
+                                    )}
+                                </span>
+
+                            </div>
+
+
+                            <div class="order-info">
+
+                                <span>
+                                    ${
+                                        escapeHtml(
+                                            order.address &&
+                                            order.address.fullName
+                                                ? order.address.fullName
+                                                : "Customer"
+                                        )
+                                    }
+                                </span>
+
+
+                                <strong>
+                                    ₹${
+                                        Number(
+                                            order.total || 0
+                                        ).toLocaleString(
+                                            "en-IN"
+                                        )
+                                    }
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+    }
+
+
+    createSalesChart(
+        orders
+    );
+
+}
+
+
+/* ==========================================
+   SALES CHART
+========================================== */
+
+function createSalesChart(
+    orders
+){
+
+    const chart =
+        document.getElementById(
+            "salesChart"
+        );
+
+
+    if(!orders.length){
+
+        chart.innerHTML = `
+            <div class="empty">
+                Sales data आने पर chart दिखेगा।
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    // Last 7 orders based chart
+    const data =
+        orders
+            .slice(-7)
+            .map(
+                function(order){
+
+                    return Number(
+                        order.total || 0
+                    );
+
+                }
+            );
+
+
+    const max =
+        Math.max(
+            ...data,
+            1
+        );
+
+
+    chart.innerHTML =
+        data.map(
+            function(value,index){
+
+                const height =
+                    Math.max(
+                        10,
+                        (
+                            value /
+                            max
+                        ) *
+                        150
+                    );
+
+
+                return `
+
+                    <div
+                        class="bar"
+                        style="height:${height}px;"
+                    >
+
+                        <span>
+                            ${index + 1}
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+/* ==========================================
+   HTML ESCAPE
+========================================== */
+
+function escapeHtml(value){
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+
+function goProducts(){
+
+    location.href =
+        "admin-products.html";
+
+}
+
+
+function goOrders(){
+
+    location.href =
+        "admin-orders.html";
+
+}
+
+
+function goCustomers(){
+
+    location.href =
+        "admin-customers.html";
+
+}
+
+
+function goDelivery(){
+
+    location.href =
+        "admin-delivery.html";
+
+}
+
+
+function goNotifications(){
+
+    location.href =
+        "admin-notifications.html";
+
+}
+
+
+/* ==========================================
+   LOGOUT
+========================================== */
+
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
+        "click",
+        async function(){
+
+            const confirmed =
+                confirm(
+                    "क्या आप Admin logout करना चाहते हैं?"
+                );
+
+
+            if(!confirmed){
+
+                return;
+
+            }
+
+
+            try{
+
+                if(db){
+
+                    await db.auth.signOut();
+
+                }
+
+            }
+            catch(error){
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+            }
+
+
+            // Old local session भी clear
+            localStorage.removeItem(
+                "nrAdminLoggedIn"
+            );
+
+            localStorage.removeItem(
+                "nrAdminEmail"
+            );
+
+            localStorage.removeItem(
+                "nrAdminLoginTime"
+            );
+
+
+            location.replace(
+                "admin-login.html"
+            );
+
+        }
+    );
+
+
+/* ==========================================
+   AUTH STATE LISTENER
+
+   केवल वास्तविक SIGNED_OUT पर login page।
+   TOKEN_REFRESHED / INITIAL_SESSION पर redirect नहीं।
+========================================== */
+
+if(db){
+
+    db.auth.onAuthStateChange(
+        function(event, session){
+
+            console.log(
+                "Supabase Auth State:",
+                event
+            );
+
+            if(event === "SIGNED_OUT"){
+
+                adminVerified = false;
+
+                redirectToAdminLogin(
+                    "Supabase session signed out"
+                );
+
+                return;
+            }
+
+            /*
+                TOKEN_REFRESHED:
+                नया access token मिल गया है।
+                User को logout नहीं करना है।
+            */
+
+            if(
+                event === "TOKEN_REFRESHED" &&
+                session
+            ){
+
+                console.log(
+                    "✅ Admin session refreshed"
+                );
+
+                try{
+                    localStorage.setItem(
+                        "nrAdminLoginTime",
+                        String(Date.now())
+                    );
+                }catch{}
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   SESSION HEALTH CHECK
+   हर 5 मिनट में session पढ़कर Supabase को
+   token refresh करने का मौका देता है।
+========================================== */
+
+setInterval(
+    async function(){
+
+        if(!db || authRedirecting){
+            return;
+        }
+
+        try{
+
+            const {
+                data,
+                error
+            } = await db.auth.getSession();
+
+            if(error){
+                console.warn(
+                    "Background session check:",
+                    error
+                );
+                return;
+            }
+
+            if(!data || !data.session){
+
+                redirectToAdminLogin(
+                    "Admin session वास्तव में expire/sign out हो गया"
+                );
+
+            }
+
+        }
+        catch(error){
+
+            console.warn(
+                "Background auth check failed:",
+                error
+            );
+
+        }
+
+    },
+    5 * 60 * 1000
+);
+
+
+/* ==========================================
+   SERVICE WORKER
+========================================== */
+
+if(
+    "serviceWorker" in navigator
+){
+
+    navigator.serviceWorker
+        .register(
+            "./admin-service-worker.js"
+        )
+        .then(
+            function(){
+
+                console.log(
+                    "✅ Service Worker ready"
+                );
+
+            }
+        )
+        .catch(
+            function(error){
+
+                console.error(
+                    "Service Worker:",
+                    error
+                );
+
+            }
+        );
+
+}
+
+
+/* ==========================================
+   REAL-TIME ADMIN NOTIFICATIONS
+========================================== */
+const notificationBadge = document.getElementById("notificationBadge");
+const notificationSound = new Audio("nr-notification-sound.wav");
+notificationSound.preload = "auto";
+
+let unreadNotificationCount = 0;
+
+function updateNotificationBadge(count){
+    unreadNotificationCount = Number(count || 0);
+    if(unreadNotificationCount > 0){
+        notificationBadge.textContent =
+            unreadNotificationCount > 99 ? "99+" : unreadNotificationCount;
+        notificationBadge.classList.remove("hidden");
+    }else{
+        notificationBadge.textContent = "0";
+        notificationBadge.classList.add("hidden");
+    }
+}
+
+async function loadUnreadNotifications(){
+    if(!db) return;
+
+    try{
+        const { count, error } = await db
+            .from("notifications")
+            .select("id", { count:"exact", head:true })
+            .eq("is_read", false);
+
+        if(error){
+            console.error("Notification count error:", error);
+            return;
+        }
+
+        updateNotificationBadge(count || 0);
+    }catch(error){
+        console.error("Notification count failed:", error);
+    }
+}
+
+async function playAdminNotificationSound(){
+    try{
+        notificationSound.currentTime = 0;
+        await notificationSound.play();
+    }catch(error){
+        console.log("Notification sound blocked until page interaction:", error);
+    }
+}
+
+function showBrowserNotification(payload){
+    if(!("Notification" in window)) return;
+    if(Notification.permission !== "granted") return;
+
+    const row = payload && payload.new ? payload.new : {};
+    new Notification(row.title || "NR Kirana Khandwa", {
+        body: row.message || "New notification received.",
+        tag: row.id || "nr-notification"
+    });
+}
+
+function subscribeAdminNotifications(){
+    if(!db) return;
+
+    db.channel("nr-admin-dashboard-notifications")
+      .on(
+        "postgres_changes",
+        {
+            event:"INSERT",
+            schema:"public",
+            table:"notifications"
+        },
+        async function(payload){
+            updateNotificationBadge(unreadNotificationCount + 1);
+            await playAdminNotificationSound();
+            showBrowserNotification(payload);
+            showToast("🔔 नया notification आया है");
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+            event:"UPDATE",
+            schema:"public",
+            table:"notifications"
+        },
+        function(payload){
+            const oldRead = payload.old && payload.old.is_read;
+            const newRead = payload.new && payload.new.is_read;
+
+            if(oldRead !== newRead){
+                loadUnreadNotifications();
+            }
+        }
+      )
+      .subscribe();
+}
+
+async function enableBrowserNotifications(){
+    if(!("Notification" in window)) return;
+
+    if(Notification.permission === "default"){
+        try{
+            await Notification.requestPermission();
+        }catch(error){
+            console.log("Notification permission:", error);
+        }
+    }
+}
+
+/* ==========================================
+   START
+========================================== */
+
+loadDashboard();
+loadUnreadNotifications();
+subscribeAdminNotifications();
+enableBrowserNotifications();
+
+</script>
+
+</body>
+
+</html>

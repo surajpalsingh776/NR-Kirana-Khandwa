@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<link rel="manifest" href="./manifest.json">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NR Kirana Khandwa</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      background: white;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 15px;
+      opacity: 0.95;
+      margin-bottom: 30px;
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .item {
+      background: rgba(255,255,255,0.18);
+      border-radius: 12px;
+      padding: 12px 5px;
+      font-size: 28px;
+    }
+
+    .item span {
+      display: block;
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .start-btn {
+      display: block;
+      text-decoration: none;
+      background: white;
+      color: #15803d;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transition: 0.2s;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .admin-section {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .admin-text {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 9px;
+    }
+
+    .admin-btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.7);
+      padding: 10px 18px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: bold;
+      background: rgba(0,0,0,0.12);
+    }
+
+    .admin-btn:hover {
+      background: rgba(0,0,0,0.22);
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 11px;
+      opacity: 0.75;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- LOGO -->
+
+    <div class="logo">
+      🛒
+    </div>
+
+
+    <!-- BRAND -->
+
+    <h1>
+      NR Kirana Khandwa
+    </h1>
+
+    <div class="tagline">
+      आपका अपना ऑनलाइन किराना स्टोर 🛍️
+    </div>
+
+
+    <!-- ITEMS -->
+
+    <div class="items">
+
+      <div class="item">
+        🌾
+        <span>किराना</span>
+      </div>
+
+      <div class="item">
+        🥛
+        <span>डेयरी</span>
+      </div>
+
+      <div class="item">
+        🍪
+        <span>स्नैक्स</span>
+      </div>
+
+      <div class="item">
+        🧴
+        <span>घर का सामान</span>
+      </div>
+
+    </div>
+
+
+    <!-- START -->
+
+    <a
+      href="login.html"
+      class="start-btn"
+    >
+      🛍️ शुरू करें
+    </a>
+
+
+    <!-- ADMIN -->
+
+    <div class="admin-section">
+
+      <div class="admin-text">
+        Store Manage करने के लिए
+      </div>
+
+      <a
+        href="admin-login.html"
+        class="admin-btn"
+      >
+        ⚙️ Admin Panel
+      </a>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+      © 2026 NR Kirana Khandwa
+    </div>
+
+  </div>
+
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
+      .then(function (registration) {
+        console.log("NR Kirana PWA service worker registered", registration.scope);
+      })
+      .catch(function (error) {
+        console.error("NR Kirana service worker registration failed", error);
+      });
+  });
+}
+</script>
+
+</body>
+</html>
