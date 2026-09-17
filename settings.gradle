@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "NR-Kirana-Khandwa"
+
 include(":app")
